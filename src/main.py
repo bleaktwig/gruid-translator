@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Gruid Translator by Bruno Benkel
@@ -15,28 +15,44 @@ import event_handler as e_handler
 import tseries_handler as ts_handler
 
 # FLAGS
-# --ifile or -i: Input file to open. No default value.
-# --ofile or -o: Output file that contains the matrix time series to create. By default is out.txt
-# --fevent or -f: First event to read. Useful when handling very large files. Default is 0.
-# --nevents or -n: Number of events to read, counting from the file set with --fevent. Set to 0  Default 0.
-# --dt: no default value, must be set.
-# --dx: no default value, must be set.
-# --dy: no default value, must be set.
+# --ifile (-i):   Input file to open. No default value.
+# --fevent (-f):  First event to read. Useful when handling very large files. Default is 0.
+# --nevents (-n): Number of events to read, counting from the file set with --fevent. Set to 0 to
+#                 read until the end of file. Default 0.
+# --dt (-t):      No default value, must be set.
+# --dx (-x):      No default value, must be set.
+# --dy (-y):      No default value, must be set.
+# --nrows (-r):   Number of rows used in the simulation. By default it's read from the filename. If
+#                 unavailable, will be requested from the user.
+# --ncols (-c):   Number of columns used in the simulation. By default it's read from the filename.
+#                 if unavailable, will be requested from the user.
+# --outamnt (-o):  Amount of export files to be generated. Can be 0, 1, or 2. Default is 1.
+#                   * 0: No files are exported, generated matrices are printed to std output.
+#                   * 1: An output file containing the time series is generated.
+#                   * 2: Apart from the normal output file, two additional files are generated.
+#                        "meta_$FILENAME.txt" contains the simulation metadata, and
+#                        "hits_$FILENAME.txt" contains a list of hits per event.
 
-# Define these based on the input file (TODO: Should be written into the file).
-NROWS = 11
-NCOLS = 11
+# What is set by flags:
+ifile   = "/home/twig/data/code/babycal/bcal_generator/output_test_1.txt"
+fevent  = 0
+nevents = 5
+dt      = 0.05
+dx      = 0.1
+dy      = 0.1
+nrows   = 11
+ncols   = 11
 
-dt = 0.05
-dx = 0.1
-dy = 0.1
+# TO BE HANDLED
+outamnt = 1
 
-import pprint
-pp = pprint.PrettyPrinter(indent=4, width=100, compact=True)
-
-(metadata, events) = io.load_file("/home/twig/data/code/babycal/bcal_generator/output_test_1.txt")
+# (nrows, ncols) = io.decode_filename(ifile)
+(metadata, events) = io.load_file(ifile, fevent, nevents)
+tseriesarr = []
 for event in events:
     hits = e_handler.extract_hits(event)
-    tseries = [ts_handler.generate_timeseries(hits[i], c.DELTAX(NCOLS), c.DELTAY(NROWS), dt, dx, dy)
-               for i in range(2)]
-    pp.pprint(tseries)
+    tseriesarr.append(
+            [ts_handler.generate_timeseries(hits[i], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+             for i in range(2)]
+    )
+io.generate_output(tseriesarr, outamnt)
