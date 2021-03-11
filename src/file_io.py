@@ -8,7 +8,7 @@ Handles files, as in loading GEMC files and saving sparse matrices as external o
 only file allowed to handle IO.
 """
 
-import file_handler as fhandler
+import file_handler as f_handler
 
 def load_file(addr, nevents=0):
     """
@@ -21,13 +21,13 @@ def load_file(addr, nevents=0):
     """
     f = open(addr)
 
-    metadata = fhandler.store_metadata(f)
+    metadata = f_handler.store_metadata(f)
     events  = []
 
     nevent = 0
     while True:
         nevent += 1
-        event = fhandler.store_event(f)
+        event = f_handler.store_event(f)
         if not event: break # Reached end of file.
         events.append(event)
         if nevents != 0 and nevent >= nevents: break
