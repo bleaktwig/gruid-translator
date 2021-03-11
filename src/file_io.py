@@ -8,10 +8,15 @@ Handles files, as in loading GEMC files and saving sparse matrices as external o
 only file allowed to handle IO.
 """
 
+import re
+
 import file_handler as f_handler
 
 def decode_filename(addr):
-    print("TODO")
+    """Decode filename and return nrows and ncols in one line. Could be improved with better regex.
+    """
+    return [int(re.findall(r'\d+', addr.split('/')[-1].split('.')[0].split('_')[-1])[i])
+            for i in range(2)]
 
 def load_file(addr, fevent=0, nevents=0):
     """

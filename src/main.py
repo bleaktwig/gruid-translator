@@ -34,19 +34,19 @@ import tseries_handler as ts_handler
 #                        "hits_$FILENAME.txt" contains a list of hits per event.
 
 # What is set by flags:
-ifile   = "/home/twig/data/code/babycal/bcal_generator/output_test_1.txt"
+ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
 fevent  = 0
 nevents = 5
 dt      = 0.05
 dx      = 0.1
 dy      = 0.1
-nrows   = 11
-ncols   = 11
+nrows   = 0
+ncols   = 0
 
 # TO BE HANDLED
 outamnt = 1
 
-# (nrows, ncols) = io.decode_filename(ifile)
+if nrows == 0 and ncols == 0: (nrows, ncols) = io.decode_filename(ifile)
 (metadata, events) = io.load_file(ifile, fevent, nevents)
 tseriesarr = []
 for event in events:
