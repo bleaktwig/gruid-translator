@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Gruid Translator by Bruno Benkel
 # To the extent possible under law, the person who associated CC0 with Gruid Translator has waived
 # all copyright and related or neighboring rights to Gruid Translator.

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.9
+# -*- coding: utf-8 -*-
 
 # Gruid Translator by Bruno Benkel
 # To the extent possible under law, the person who associated CC0 with Gruid Translator has waived
@@ -14,129 +15,25 @@ import numpy as np
 from scipy.sparse import csr_matrix
 
 import constants as c
+import file_io as io
 
-# Define these based on the input file (TODO: Should be written into this file).
+# FLAGS
+# --filename or -f: Filename to open. No default value.
+# --nevents or -n: Default 0.
+# --dt: no default value, must be set.
+# --dx: no default value, must be set.
+# --dy: no default value, must be set.
+
+# Define these based on the input file (TODO: Should be written into the file).
 NROWS = 11
 NCOLS = 11
 
-def store_metadata(file):
-    """
-    Store file's metadata as a dictionary of strings.
-    :param file: unprocessed input file.
-    :return:     dictionary of metadata.
-    """
-    metadata = {}
-    filetype = False # Recent files have an embedded json for some reason.
+(metadata, events) = io.load_file("/home/twig/data/code/babycal/bcal_generator/output_test_1.txt")
 
-    for i in range(2):
-        devnull = file.readline() # Ignore the first two lines.
+import pprint
+pp = pprint.PrettyPrinter(indent=4, width=100, compact=True)
 
-    while True:
-        x = file.tell() # Define a stopping point for later.
-        l = file.readline()
-        if len(l) <= 4:
-            filetype = True
-            break
-        if l[3] != '>':
-            break
-        sl = l.split(' ')
-        if len(sl) == 7:
-            metadata[sl[5]] = sl[6][:-1]
-
-    if filetype:
-        while True:
-            x = file.tell()
-            l = file.readline()
-            if len(l) <= 4: continue
-            if l[1] == '-': break
-
-    file.seek(x)
-    return metadata
-
-def store_event(file):
-    """
-    Store one event's data as a dictionary of dictionaries, assuming that the metadata has already been stored.
-    :param file: input file with metadata (and pesky embedded json) removed.
-    :return:     a dict with 5 dicts whose keys are the 5 BANK constants. Each describes the following:
-                   * HBANK:  header bank (10).
-                   * UHBANK: user header bank (currently empty). Assumed to have same format as header bank.
-                   * IRBANK: integrated raw bank (51).
-                   * IDBANK: integrated digitized bank (52).
-                   * GPBANK: generated particles bank.
-    """
-    event_data = {
-        c.HBANK  : {},
-        c.UHBANK : {},
-        c.IRBANK : {},
-        c.IDBANK : {},
-        c.GPBANK : {},
-    }
-    bank = None
-    eof = 0 # End of file checker.
-
-    while True:
-        l = file.readline()
-        l = l[:-1].rstrip()
-        if l == c.S_EOE:
-            break
-        if l == '':
-            eof = 1
-            break
-
-        # Make sure we're writing to the correct address.
-        if   l == c.S_HBANK:  bank = c.HBANK
-        elif l == c.S_UHBANK: bank = c.UHBANK
-        elif l == c.S_IRBANK: bank = c.IRBANK
-        elif l == c.S_IDBANK: bank = c.IDBANK
-        elif l == c.S_GPBANK: bank = c.GPBANK
-
-        if bank != c.GPBANK:
-            sl = l.split('\t')
-            if len(sl) == 1: continue # Ignore lines with titles & irrelevant information.
-
-        if bank == c.HBANK or bank == c.UHBANK: # Header & user header banks.
-            event_data[bank][sl[0].split(' ')[-1][:-1]] = sl[1]
-        if bank == c.IRBANK or bank == c.IDBANK: # Raw & Digitized banks.
-            event_data[bank][sl[0].split(' ')[-1][:-1]] = sl[1:]
-        if bank == c.GPBANK: # Generated particles bank.
-            sl = l.split()
-            if sl[1] == c.S_PARTICLE:
-                event_data[bank][sl[ 3][:-1]] = sl[ 4]
-                event_data[bank][sl[ 6][:-1]] = sl[ 7]
-                event_data[bank][sl[10][:-1]] = sl[11]
-            if sl[1] == c.S_HIT:
-                event_data[bank][c.S_NHITS] = sl[ 4]
-                event_data[bank][sl[ 7]]  = sl[ 8]
-                event_data[bank][sl[11]]  = sl[12]
-    if eof != 0:
-        return None
-
-    return event_data
-
-def save_file(addr, nevents=0):
-    """
-    Store a GEMC file's metadata and events in a tuple.
-    :param addr:    address of the input file in standard GEMC txt format.
-    :param nevents: number of events to read. Set to 0 to read all events.
-    :return:        a 2-tuple with a dictionary containing the file's metadata (0) and an array of events (1).
-                    Both the metadata's and each event's formats are described in the store_metadata() and
-                    store_event() methods.
-    """
-    f = open(addr)
-
-    metadata = store_metadata(f)
-    events  = []
-
-    nevent = 0
-    while True:
-        nevent += 1
-        event = store_event(f)
-        if not event: break # Reached end of file.
-        events.append(event)
-        if nevents != 0 and nevent >= nevents: break
-    f.close()
-
-    return (metadata, events)
+pp.pprint(metadata)
 
 # Extract hits from an event.
 def extract_hits(event):
