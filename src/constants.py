@@ -1,5 +1,6 @@
-# The contents of this file is free and unencumbered software released into the
-# public domain. For more information, please refer to <http://unlicense.org/>
+# Gruid Translator by Bruno Benkel
+# To the extent possible under law, the person who associated CC0 with Gruid Translator has waived
+# all copyright and related or neighboring rights to Gruid Translator.
 
 """
 A list of constants used by the entire program. Mainly contains strings hardcoded as are defined in
