@@ -11,10 +11,9 @@ only file allowed to handle IO.
 from pathlib import Path
 import json
 import re
+
 import constants as c
 import gemcfile_handler as fh
-
-outpath = "../out"
 
 def split_address(addr):
     """Split an address into path and filename.
@@ -39,6 +38,13 @@ def generate_outfilename(addr, ed):
         if n < f: f = n
         if l < n: l = n
     return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(l)+".json"
+
+def store_dict(dict, addr):
+    """Store a dictionary as a json file to the given addr.
+    """
+    Path(c.OUTPATH).mkdir(exist_ok=True)
+    with open(addr, 'w') as f:
+        json.dump(dict, f, indent=4, sort_keys=True)
 
 def load_file(addr, fevent=1, nevents=0):
     """
@@ -65,33 +71,27 @@ def load_file(addr, fevent=1, nevents=0):
 
     return (metadata, events)
 
-def generate_output(eventdict, hitsdict, metadata, filename, outamnt=0):
+def generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outamnt=0):
     """Calls appropiate output function based in outamnt.
     """
     switch = [_export0, _export1, _export2]
-    switch[outamnt](eventdict, hitsdict, metadata, filename)
+    switch[outamnt](gruidhitsdict, gemchitsdict, metadata, filename)
 
-def _export0(eventdict, hitsdict, metadata, in_filename):
-    print(json.dumps(eventdict, indent=4, sort_keys=True))
+def _export0(gruidhitsdict, gemchitsdict, metadata, in_filename):
+    """Print gruidhitsdict to stdout.
+    """
+    print(json.dumps(gruidhitsdict, indent=4, sort_keys=True))
 
-def _export1(eventdict, hitsdict, metadata, in_filename):
-    Path(c.OUTPATH).mkdir(exist_ok=True)
-    with open(c.OUTPATH + "/out_" + generate_outfilename(in_filename, eventdict), 'w') as f:
-        json.dump(eventdict, f, indent=4, sort_keys=True)
+def _export1(gruidhitsdict, gemchitsdict, metadata, in_filename):
+    """Save gruidhitsdict in a json file.
+    """
+    store_dict(gruidhitsdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
 
-def _export2(eventdict, hitsdict, metadata, in_filename):
-    print("TODO2")
-    # Path(c.OUTPATH).mkdir(exist_ok=True)
-    # eventdict["gemc metadata"] = metadata
-    #
-    # print(hitsdict['bcal_20210311122138_r11c11.txt event 1'][0]['E'])
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    # return
+def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename): # TODO: Can be heavily improved.
+    """Save all hit data and gemc metadata to json file.
+    """
+    eventdict = {}
+    eventdict[c.S_GEMCMETA] = metadata
+    for key in gruidhitsdict:
+        eventdict[key] = gruidhitsdict[key] | gemchitsdict[key]
+    store_dict(eventdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))

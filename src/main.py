@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.9
 # -*- coding: utf-8 -*-
 
 # Gruid Translator by Bruno Benkel
@@ -42,7 +42,7 @@ dx      = 0.1  # cm
 dy      = 0.1  # cm
 nrows   = None
 ncols   = None
-outamnt = 0
+outamnt = 2
 # NOTE: Energy is in eV
 
 (path, filename) = io.split_address(ifile)
@@ -50,11 +50,11 @@ if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename
 (metadata, events) = io.load_file(ifile, fevent, nevents)
 
 ei = fevent
-hitsdict  = {}
-eventdict = {}
+gemchitdict  = {}
+gruidhitsdict = {}
 for event in events:
     key = filename + " event " + str(ei)
-    hitsdict [key] = gemc_eh.extract_hits(event)
-    eventdict[key] = gruid_eh.generate_event(hitsdict[key], nrows, ncols, dt, dx, dy)
+    gemchitdict [key] = gemc_eh.extract_hits(event)
+    gruidhitsdict[key] = gruid_eh.generate_event(gemchitdict[key], nrows, ncols, dt, dx, dy)
     ei += 1
-io.generate_output(eventdict, hitsdict, metadata, filename, outamnt)
+io.generate_output(gruidhitsdict, gemchitdict, metadata, filename, outamnt)

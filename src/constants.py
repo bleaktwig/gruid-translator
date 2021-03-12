@@ -8,8 +8,9 @@ A list of constants used by the entire program. Mainly contains strings hardcode
 GEMC, with some additional stuff to help standardize the program.
 """
 
-# Paths.
+# Paths, prefixes, etc.
 OUTPATH = "../out"
+OUTPREF = "out_"
 
 # Generic strings used to identify banks by name in python code.
 HBANK  = "header bank"
@@ -37,8 +38,18 @@ S_AVGT     = "avg_t"
 S_EDEP     = "totEdep"
 
 # Strings defined and used by this program.
+S_GEMCMETA = "gemc metadata"
+S_GRUIDMETA = "event metadata"
+S_NROWS = "nrows"
+S_NCOLS = "ncols"
+S_GEMCHITS  = "gemc hits"
+S_GRUIDHITS = "gruid hits"
 S_SIDE1 = "side 1"
 S_SIDE2 = "side 2"
+S_GEMCH1   = S_GEMCHITS   + " - " + S_SIDE1
+S_GEMCH2   = S_GEMCHITS   + " - " + S_SIDE2
+S_GRUIDH1   = S_GRUIDHITS + " - " + S_SIDE1
+S_GRUIDH2   = S_GRUIDHITS + " - " + S_SIDE2
 S_N     = 'n'
 S_X     = 'x'
 S_Y     = 'y'
@@ -47,9 +58,6 @@ S_E     = 'E'
 S_DT    = "dt"
 S_DX    = "dx"
 S_DY    = "dy"
-S_NROWS = "nrows"
-S_NCOLS = "ncols"
-
 
 # IDs of the sensor endplates, as defined by the gemc simulation.
 SENSOR1A_ID =  4

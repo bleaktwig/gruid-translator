@@ -65,8 +65,8 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
                 exit()
 
             key = str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))
-            if key in phits: phits[key] += chits[c.S_E][hi]*10**6
-            else:            phits[key]  = chits[c.S_E][hi]*10**6
+            if key in phits: phits[key] += chits[c.S_E][hi]
+            else:            phits[key]  = chits[c.S_E][hi]
 
             for key in chits.keys(): chits[key].pop(hi)
             hitstored = True
@@ -87,7 +87,7 @@ def generate_event(hits, nrows, ncols, dt, dx, dy):
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
     """
-    event = {"event metadata": {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:nrows, c.S_NCOLS:ncols}}
-    event[c.S_SIDE1] = _gen_ts(hits[c.S_SIDE1], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
-    event[c.S_SIDE2] = _gen_ts(hits[c.S_SIDE2], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    event = {c.S_GRUIDMETA: {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:nrows, c.S_NCOLS:ncols}}
+    event[c.S_GRUIDH1] = _gen_ts(hits[c.S_GEMCH1], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    event[c.S_GRUIDH2] = _gen_ts(hits[c.S_GEMCH2], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
     return event
