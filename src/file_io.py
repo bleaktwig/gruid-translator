@@ -27,17 +27,17 @@ def decode_filename(addr):
     """
     return [int(re.findall(r'\d+', addr)[i]) for i in range(-2, 0)]
 
-def txt_to_json(addr):
-    """Exchange a filename's extension from txt to json.
+def generate_outfilename(addr, f, n):
+    """generate the output filename.
     """
-    return ('.'.join(addr.split('.')[0:-1]) + ".json")
+    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(f+n-1)+".json"
 
-def load_file(addr, fevent=0, nevents=0):
+def load_file(addr, fevent=1, nevents=0):
     """
     Store a GEMC file's metadata and events in a tuple.
     :param addr:    address of the input file in standard GEMC txt format.
     :param fevent:  first event to read. Useful when handling very large files.
-    :param nevents: number of events to read. Set to 0 to read all events.
+    :param nevents: number of events to read. Set to 0 to read all events from fevent onward.
     :return:        a 2-tuple with a dictionary containing the file's metadata (0) and an array of
                     events (1). Both the metadata's and each event's formats are described in the
                     store_metadata() and store_event() methods.
@@ -46,30 +46,29 @@ def load_file(addr, fevent=0, nevents=0):
         metadata = fh.store_metadata(f)
         events  = []
 
-        nevent = 1
+        nevent = fevent
         while True:
-            if nevent <= fevent: continue
             event = fh.store_event(f)
             if not event: break # Reached end of file.
             events.append(event)
-            if nevents != 0 and nevent >= nevents: break
+            if nevents != 0 and nevent-fevent >= nevents: break
             nevent += 1
 
     return (metadata, events)
 
-def generate_output(eventdict, filename, outamnt=0):
+def generate_output(eventdict, filename, fevent, nevents, outamnt=0):
     """Calls appropiate output function based in outamnt.
     """
     switch = [_export0, _export1, _export2]
-    switch[outamnt](eventdict, filename)
+    switch[outamnt](eventdict, filename, fevent, nevents)
 
-def _export0(eventdict, in_filename):
+def _export0(eventdict, in_filename, fevent, nevents):
     print(json.dumps(eventdict, indent=4, sort_keys=True))
 
-def _export1(eventdict, in_filename):
+def _export1(eventdict, in_filename, fevent, nevents):
     Path(c.OUTPATH).mkdir(exist_ok=True)
-    with open(c.OUTPATH + "/out_" + txt_to_json(in_filename), 'w') as f:
+    with open(c.OUTPATH + "/" + generate_outfilename(in_filename, fevent, nevents), 'w') as f:
         json.dump(eventdict, f, indent=4, sort_keys=True)
 
-def _export2(eventdict, in_filename):
+def _export2(eventdict, in_filename, fevent, nevents):
     print("TODO 2")

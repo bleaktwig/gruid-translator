@@ -15,7 +15,8 @@ import gruidevent_handler as gruid_eh
 
 # FLAGS
 # --ifile (-i):   Input file to open. No default value.
-# --fevent (-f):  First event to read. Useful when handling very large files. Default is 0.
+# --fevent (-f):  First event to read. Useful when handling very large files. Note that events are
+#                 counted from 1. Default is 1.
 # --nevents (-n): Number of events to read, counting from the file set with --fevent. Set to 0 to
 #                 read until the end of file. Default 0.
 # --dt (-t):      No default value, must be set.
@@ -25,16 +26,16 @@ import gruidevent_handler as gruid_eh
 #                 unavailable, will be requested from the user.
 # --ncols (-c):   Number of columns used in the simulation. By default it's read from the filename.
 #                 if unavailable, will be requested from the user.
-# --outamnt (-o):  Amount of export files to be generated. Can be 0, 1, or 2. Default is 1.
+# --outamnt (-o): Amount of export files to be generated. Can be 0, 1, or 2. Default is 1.
 #                   * 0: No files are exported, generated matrices are printed to std output.
-#                   * 1: An output file containing the time series is generated.
+#                   * 1: An output file containing the time series is generated in out/.
 #                   * 2: Apart from the normal output file, two additional files are generated.
 #                        "meta_$FILENAME.txt" contains the simulation metadata, and
 #                        "hits_$FILENAME.txt" contains a list of hits per event as defined by gemc.
 
 # What is set by flags:
 ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
-fevent  = 0
+fevent  = 1
 nevents = 5
 dt      = 0.05 # ns
 dx      = 0.1  # cm
@@ -50,7 +51,7 @@ if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename
 ei = fevent
 eventdict = {}
 for event in events:
-    ei += 1
     hits = gemc_eh.extract_hits(event)
     eventdict[filename + " event " + str(ei)] = gruid_eh.generate_event(hits, nrows, ncols, dt, dx, dy)
-io.generate_output(eventdict, filename, outamnt)
+    ei += 1
+io.generate_output(eventdict, filename, fevent, nevents, outamnt)
