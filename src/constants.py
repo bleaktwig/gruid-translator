@@ -8,6 +8,9 @@ A list of constants used by the entire program. Mainly contains strings hardcode
 GEMC, with some additional stuff to help standardize the program.
 """
 
+# Paths.
+OUTPATH = "../out"
+
 # Generic strings used to identify banks by name in python code.
 HBANK  = "header bank"
 UHBANK = "user header bank"
