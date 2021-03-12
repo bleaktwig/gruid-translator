@@ -65,19 +65,33 @@ def load_file(addr, fevent=1, nevents=0):
 
     return (metadata, events)
 
-def generate_output(eventdict, filename, outamnt=0):
+def generate_output(eventdict, hitsdict, metadata, filename, outamnt=0):
     """Calls appropiate output function based in outamnt.
     """
     switch = [_export0, _export1, _export2]
-    switch[outamnt](eventdict, filename)
+    switch[outamnt](eventdict, hitsdict, metadata, filename)
 
-def _export0(eventdict, in_filename):
+def _export0(eventdict, hitsdict, metadata, in_filename):
     print(json.dumps(eventdict, indent=4, sort_keys=True))
 
-def _export1(eventdict, in_filename):
+def _export1(eventdict, hitsdict, metadata, in_filename):
     Path(c.OUTPATH).mkdir(exist_ok=True)
-    with open(c.OUTPATH + "/" + generate_outfilename(in_filename, eventdict), 'w') as f:
+    with open(c.OUTPATH + "/out_" + generate_outfilename(in_filename, eventdict), 'w') as f:
         json.dump(eventdict, f, indent=4, sort_keys=True)
 
-def _export2(eventdict, in_filename):
-    print("TODO 2")
+def _export2(eventdict, hitsdict, metadata, in_filename):
+    print("TODO2")
+    # Path(c.OUTPATH).mkdir(exist_ok=True)
+    # eventdict["gemc metadata"] = metadata
+    #
+    # print(hitsdict['bcal_20210311122138_r11c11.txt event 1'][0]['E'])
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # return

@@ -24,23 +24,23 @@ def extract_hits(event):
     """
     if event is None: return None
     # Define hits dictionaries (one per detecting surface).
-    hits = ({'n' : [], 'x' : [], 'y' : [], 't' : [], 'E' : [],},
-            {'n' : [], 'x' : [], 'y' : [], 't' : [], 'E' : [],},)
+    hits = {c.S_SIDE1: {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],},
+            c.S_SIDE2: {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],},}
 
     for hi in range(len(event[c.IDBANK][c.S_HITN])):
-        if event[c.IRBANK]["pid"]    [hi] != '0': continue # Ignore hits not from photons.
-        if event[c.IRBANK]["totEdep"][hi] == '0': continue # Ignore hits with no energy deposited.
-        vol = -1 # Save the volume hit.
+        if event[c.IRBANK][c.S_PID] [hi] != '0': continue # Ignore hits not from photons.
+        if event[c.IRBANK][c.S_EDEP][hi] == '0': continue # Ignore hits with no energy deposited.
+        vol = None # Save the volume hit.
         volid = int(int(event[c.IDBANK][c.S_VOL][hi])/10**8)
-        if volid == c.SENSOR1A_ID or volid == c.SENSOR1B_ID: vol = 0
-        if volid == c.SENSOR2A_ID or volid == c.SENSOR2B_ID: vol = 1
-        if vol == -1: continue
+        if volid == c.SENSOR1A_ID or volid == c.SENSOR1B_ID: vol = c.S_SIDE1
+        if volid == c.SENSOR2A_ID or volid == c.SENSOR2B_ID: vol = c.S_SIDE2
+        if vol is None: continue
 
         # Add hit to dictionary.
-        hits[vol]['n'].append(float(event[c.IDBANK][c.S_HITN][hi]))  # hit identifier.
-        hits[vol]['x'].append(float(event[c.IRBANK][c.S_X][hi])/10.) # x position (in cm).
-        hits[vol]['y'].append(float(event[c.IRBANK][c.S_Y][hi])/10.) # y position (in cm).
-        hits[vol]['t'].append(float(event[c.IRBANK][c.S_T][hi]))     # Time.
-        hits[vol]['E'].append(float(event[c.IRBANK][c.S_E][hi]))     # Energy deposited.
+        hits[vol]['n'].append(float(event[c.IDBANK][c.S_HITN][hi]))       # hit identifier.
+        hits[vol]['x'].append(float(event[c.IRBANK][c.S_AVGX][hi])/10.)   # x position (in cm).
+        hits[vol]['y'].append(float(event[c.IRBANK][c.S_AVGY][hi])/10.)   # y position (in cm).
+        hits[vol]['t'].append(float(event[c.IRBANK][c.S_AVGT][hi]))       # Time.
+        hits[vol]['E'].append(float(event[c.IRBANK][c.S_EDEP][hi])*10**6) # Energy deposited (in eV).
 
     return hits

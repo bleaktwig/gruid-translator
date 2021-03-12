@@ -36,22 +36,25 @@ import gruidevent_handler as gruid_eh
 # What is set by flags:
 ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
 fevent  = 1
-nevents = 0
+nevents = 1
 dt      = 0.05 # ns
 dx      = 0.1  # cm
 dy      = 0.1  # cm
 nrows   = None
 ncols   = None
-outamnt = 1
+outamnt = 0
 # NOTE: Energy is in eV
 
 (path, filename) = io.split_address(ifile)
 if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename)
 (metadata, events) = io.load_file(ifile, fevent, nevents)
+
 ei = fevent
+hitsdict  = {}
 eventdict = {}
 for event in events:
-    hits = gemc_eh.extract_hits(event)
-    eventdict[filename + " event " + str(ei)] = gruid_eh.generate_event(hits, nrows, ncols, dt, dx, dy)
+    key = filename + " event " + str(ei)
+    hitsdict [key] = gemc_eh.extract_hits(event)
+    eventdict[key] = gruid_eh.generate_event(hitsdict[key], nrows, ncols, dt, dx, dy)
     ei += 1
-io.generate_output(eventdict, filename, outamnt)
+io.generate_output(eventdict, hitsdict, metadata, filename, outamnt)

@@ -10,6 +10,7 @@ Handles gruid events. Generates gruid events with matrix time series for a set o
 import copy
 import math
 import numpy # TODO: We could do without numpy...
+import sys
 
 import constants as c
 
@@ -36,24 +37,24 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
 
     tseries = {}
     max_t = 0.
-    for t in chits['t']:
+    for t in chits[c.S_T]:
         if t > max_t: max_t = t
 
     for t in numpy.arange(0., max_t, dt):
         hitstored = False
         phits = {}
 
-        for hi in range(len(chits['n'])-1, -1, -1):
+        for hi in range(len(chits[c.S_N])-1, -1, -1):
             # Check if hit is in dt.
-            if t > chits['t'][hi] or t+dt <= chits['t'][hi]: continue
+            if t > chits[c.S_T][hi] or t+dt <= chits[c.S_T][hi]: continue
 
             # Store hit's position.
             sx = None
             for x in numpy.arange(-deltax, deltax+dx, dx):
-                if x <= chits['x'][hi] and chits['x'][hi] < x+dx: sx = x
+                if x <= chits[c.S_X][hi] and chits[c.S_X][hi] < x+dx: sx = x
             sy = None
             for y in numpy.arange(-deltay, deltay+dy, dy):
-                if y <= chits['y'][hi] and chits['y'][hi] < y+dy: sy = y
+                if y <= chits[c.S_Y][hi] and chits[c.S_Y][hi] < y+dy: sy = y
             if not sx or not sy:
                 # NOTE: There is a very particular case where this conditional might be triggered
                 #       "by accident". If either dx or dy perfectly divides 2*deltax or 2*deltay
@@ -62,10 +63,12 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
                 #       don't think adding the extra computing time and error checking is worth it.
                 print("FATAL ERROR: Something is deeply wrong in the input data.", file=sys.stderr)
                 exit()
-            phits[str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))] = chits['E'][hi]*10**6
 
-            for key in chits.keys():
-                chits[key].pop(hi)
+            key = str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))
+            if key in phits: phits[key] += chits[c.S_E][hi]*10**6
+            else:            phits[key]  = chits[c.S_E][hi]*10**6
+
+            for key in chits.keys(): chits[key].pop(hi)
             hitstored = True
 
         if hitstored: tseries[t] = phits
@@ -84,7 +87,7 @@ def generate_event(hits, nrows, ncols, dt, dx, dy):
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
     """
-    event = {"metadata": {"dt":dt, "dx":dx, "dy":dy, "nrows":nrows, "ncols":ncols}}
-    for i in range(2):
-        event["side " + str(i+1)] = _gen_ts(hits[i], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    event = {"event metadata": {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:nrows, c.S_NCOLS:ncols}}
+    event[c.S_SIDE1] = _gen_ts(hits[c.S_SIDE1], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    event[c.S_SIDE2] = _gen_ts(hits[c.S_SIDE2], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
     return event

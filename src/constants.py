@@ -28,12 +28,28 @@ S_EOE      = " ---- End of Event  ----"
 S_PARTICLE = "Particle"
 S_HIT      = "Hit"
 S_NHITS    = "nhits"
-S_HITN     = "hitn"
+S_PID      = "pid"
 S_VOL      = "id"
-S_X        = "avg_x"
-S_Y        = "avg_y"
-S_T        = "avg_t"
-S_E        = "totEdep"
+S_HITN     = "hitn"
+S_AVGX     = "avg_x"
+S_AVGY     = "avg_y"
+S_AVGT     = "avg_t"
+S_EDEP     = "totEdep"
+
+# Strings defined and used by this program.
+S_SIDE1 = "side 1"
+S_SIDE2 = "side 2"
+S_N     = 'n'
+S_X     = 'x'
+S_Y     = 'y'
+S_T     = 't'
+S_E     = 'E'
+S_DT    = "dt"
+S_DX    = "dx"
+S_DY    = "dy"
+S_NROWS = "nrows"
+S_NCOLS = "ncols"
+
 
 # IDs of the sensor endplates, as defined by the gemc simulation.
 SENSOR1A_ID =  4
