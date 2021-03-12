@@ -9,10 +9,9 @@
 TODO.
 """
 
-import constants as c
 import file_io as io
-import event_handler as e_handler
-import tseries_handler as ts_handler
+import gemcevent_handler as gemc_eh
+import gruidevent_handler as gruid_eh
 
 # FLAGS
 # --ifile (-i):   Input file to open. No default value.
@@ -37,22 +36,22 @@ import tseries_handler as ts_handler
 ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
 fevent  = 0
 nevents = 5
-dt      = 0.05
-dx      = 0.1
-dy      = 0.1
+dt      = 0.05 # ns
+dx      = 0.1  # cm
+dy      = 0.1  # cm
 nrows   = 0
 ncols   = 0
+# NOTE: Energy is in eV
 
 # TO BE HANDLED
-outamnt = 1
+outamnt = 0
 
 if nrows == 0 and ncols == 0: (nrows, ncols) = io.decode_filename(ifile)
 (metadata, events) = io.load_file(ifile, fevent, nevents)
-tseriesarr = []
+ei = fevent
+eventdict = {}
 for event in events:
-    hits = e_handler.extract_hits(event)
-    tseriesarr.append(
-            [ts_handler.generate_timeseries(hits[i], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
-             for i in range(2)]
-    )
-io.generate_output(tseriesarr, outamnt)
+    ei += 1
+    hits = gemc_eh.extract_hits(event)
+    eventdict[ei] = gruid_eh.generate_event(ei, hits, nrows, ncols, dt, dx, dy)
+io.generate_output(eventdict, outamnt)

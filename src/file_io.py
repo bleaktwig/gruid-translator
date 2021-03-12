@@ -9,14 +9,12 @@ only file allowed to handle IO.
 """
 
 import re
-
-import file_handler as f_handler
+import gemcfile_handler as fh
 
 def decode_filename(addr):
-    """Decode filename and return nrows and ncols in one line. Could be improved with better regex.
+    """Decode filename and return nrows and ncols in one line.
     """
-    return [int(re.findall(r'\d+', addr.split('/')[-1].split('.')[0].split('_')[-1])[i])
-            for i in range(2)]
+    return [int(re.findall(r'\d+', addr)[i]) for i in range(-2, 0)]
 
 def load_file(addr, fevent=0, nevents=0):
     """
@@ -30,14 +28,14 @@ def load_file(addr, fevent=0, nevents=0):
     """
     f = open(addr)
 
-    metadata = f_handler.store_metadata(f)
+    metadata = fh.store_metadata(f)
     events  = []
 
     nevent = 0
     while True:
         nevent += 1
         if nevent <= fevent: continue
-        event = f_handler.store_event(f)
+        event = fh.store_event(f)
         if not event: break # Reached end of file.
         events.append(event)
         if nevents != 0 and nevent >= nevents: break
@@ -45,17 +43,28 @@ def load_file(addr, fevent=0, nevents=0):
 
     return (metadata, events)
 
-def generate_output(tseriesarr, outamnt):
+def generate_output(eventdict, outamnt):
     """Calls appropiate output function based in outamnt.
     """
     switch = [export0, export1, export2]
-    switch[outamnt](tseriesarr)
+    switch[outamnt](eventdict)
 
-def export0(tseriesarr):
-    print("TODO 0")
+def export0(eventdict):
+    for ei in eventdict.keys():
+        print("=== event %d =================================================================" % ei)
+        print("  metadata: ", end='')
+        print(eventdict[ei]["metadata"])
+        for si in range(1,3):
+            sidename = "side " + str(si)
+            print("  %s hits:" % (sidename))
+            for ti in eventdict[ei][sidename]:
+                if eventdict[ei][sidename][ti] is None: continue
+                print("    t = %6.4f ns" % (ti))
+                for key in eventdict[ei][sidename][ti].keys():
+                    print("      (%3d,%3d): %10.7f eV" % (key[0],key[1],eventdict[ei][sidename][ti][key]))
 
-def export1(tseriesarr):
+def export1(eventdict):
     print("TODO 1")
 
-def export2(tseriesarr):
+def export2(eventdict):
     print("TODO 2")
