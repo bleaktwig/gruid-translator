@@ -10,32 +10,7 @@ access to IO.
 
 import constants as c
 
-def process_file(addr, nevents=0):
-    """
-    Store a GEMC file's metadata and events in a tuple.
-    :param addr:    address of the input file in standard GEMC txt format.
-    :param nevents: number of events to read. Set to 0 to read all events.
-    :return:        a 2-tuple with a dictionary containing the file's metadata (0) and an array of
-                    events (1). Both the metadata's and each event's formats are described in the
-                    store_metadata() and store_event() methods.
-    """
-    f = open(addr)
-
-    metadata = _store_metadata(f)
-    events  = []
-
-    nevent = 0
-    while True:
-        nevent += 1
-        event = _store_event(f)
-        if not event: break # Reached end of file.
-        events.append(event)
-        if nevents != 0 and nevent >= nevents: break
-    f.close()
-
-    return (metadata, events)
-
-def _store_metadata(file):
+def store_metadata(file):
     """
     Store file's metadata as a dictionary of strings.
     :param file: unprocessed input file.
@@ -69,7 +44,7 @@ def _store_metadata(file):
     file.seek(x)
     return metadata
 
-def _store_event(file):
+def store_event(file):
     """
     Store one event's data as a dictionary of dictionaries, assuming that the metadata has already
     been stored.
