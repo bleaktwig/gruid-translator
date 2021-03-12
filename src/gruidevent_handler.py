@@ -13,7 +13,7 @@ import numpy # TODO: We could do without numpy...
 
 import constants as c
 
-def generate_timeseries(hits, deltax, deltay, dt, dx, dy):
+def _gen_ts(hits, deltax, deltay, dt, dx, dy):
     """
     Generates a time series of sparse 2-dimensional matrices from a list of hits.
     :param hits:   list of hits in the output format of the extract_hits() method.
@@ -86,6 +86,5 @@ def generate_event(hits, nrows, ncols, dt, dx, dy):
     """
     event = {"metadata": {"dt":dt, "dx":dx, "dy":dy, "nrows":nrows, "ncols":ncols}}
     for i in range(2):
-        event["side " + str(i+1)] = \
-                generate_timeseries(hits[i], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+        event["side " + str(i+1)] = _gen_ts(hits[i], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
     return event

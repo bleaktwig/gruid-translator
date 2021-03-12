@@ -50,18 +50,19 @@ def load_file(addr, fevent=0, nevents=0):
 
     return (metadata, events)
 
-def generate_output(eventdict, outamnt):
+def generate_output(eventdict, path, filename, outamnt=0):
     """Calls appropiate output function based in outamnt.
     """
-    switch = [export0, export1, export2]
-    switch[outamnt](eventdict)
+    switch = [_export0, _export1, _export2]
+    switch[outamnt](eventdict, path, filename)
 
-def export0(eventdict):
+def _export0(eventdict, path, in_filename):
     print(json.dumps(eventdict, indent=4, sort_keys=True))
 
-def export1(eventdict):
+def _export1(eventdict, path, in_filename):
+    out_filename = '/'.join(path.split('/')[0:-1]) + "/out/"
     with open("../out/result.json", 'w') as fp:
         json.dump(eventdict, fp, indent=4, sort_keys=True)
 
-def export2(eventdict):
+def _export2(eventdict, path, in_filename):
     print("TODO 2")

@@ -21,13 +21,13 @@ def process_file(addr, nevents=0):
     """
     f = open(addr)
 
-    metadata = store_metadata(f)
+    metadata = _store_metadata(f)
     events  = []
 
     nevent = 0
     while True:
         nevent += 1
-        event = store_event(f)
+        event = _store_event(f)
         if not event: break # Reached end of file.
         events.append(event)
         if nevents != 0 and nevent >= nevents: break
@@ -35,7 +35,7 @@ def process_file(addr, nevents=0):
 
     return (metadata, events)
 
-def store_metadata(file):
+def _store_metadata(file):
     """
     Store file's metadata as a dictionary of strings.
     :param file: unprocessed input file.
@@ -69,7 +69,7 @@ def store_metadata(file):
     file.seek(x)
     return metadata
 
-def store_event(file):
+def _store_event(file):
     """
     Store one event's data as a dictionary of dictionaries, assuming that the metadata has already
     been stored.

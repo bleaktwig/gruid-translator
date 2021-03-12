@@ -54,4 +54,4 @@ for event in events:
     ei += 1
     hits = gemc_eh.extract_hits(event)
     eventdict[filename + " event " + str(ei)] = gruid_eh.generate_event(hits, nrows, ncols, dt, dx, dy)
-io.generate_output(eventdict, outamnt)
+io.generate_output(eventdict, path, filename, outamnt)
