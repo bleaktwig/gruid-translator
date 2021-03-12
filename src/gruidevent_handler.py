@@ -28,8 +28,8 @@ def generate_timeseries(hits, deltax, deltay, dt, dx, dy):
                    detector.
     :return:       a dictionary of 2-dimensional sparse matrices. Each matrix is defined as a
                    dictionary where a key is a tuple describing position and a value is the energy
-                   deposited in eV. To further reduce storage use, if not hits are found for a dt, a
-                   NoneType object is stored instead of an empty matrix.
+                   deposited in eV. To further reduce storage use, if not hits are found for a
+                   specific t, that t isn't event stored in the time series.
     """
     if not hits: return None
     chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original array.
@@ -68,8 +68,7 @@ def generate_timeseries(hits, deltax, deltay, dt, dx, dy):
                 chits[key].pop(hi)
             hitstored = True
 
-        if not hitstored: tseries[t] = None
-        else:             tseries[t] = phits
+        if hitstored: tseries[t] = phits
     return tseries
 
 def generate_event(hits, nrows, ncols, dt, dx, dy):
