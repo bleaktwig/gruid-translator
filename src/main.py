@@ -36,7 +36,7 @@ import gruidevent_handler as gruid_eh
 # What is set by flags:
 ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
 fevent  = 1
-nevents = 5
+nevents = 0
 dt      = 0.05 # ns
 dx      = 0.1  # cm
 dy      = 0.1  # cm
@@ -54,4 +54,4 @@ for event in events:
     hits = gemc_eh.extract_hits(event)
     eventdict[filename + " event " + str(ei)] = gruid_eh.generate_event(hits, nrows, ncols, dt, dx, dy)
     ei += 1
-io.generate_output(eventdict, filename, fevent, nevents, outamnt)
+io.generate_output(eventdict, filename, outamnt)

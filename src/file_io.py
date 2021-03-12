@@ -27,10 +27,18 @@ def decode_filename(addr):
     """
     return [int(re.findall(r'\d+', addr)[i]) for i in range(-2, 0)]
 
-def generate_outfilename(addr, f, n):
+def generate_outfilename(addr, ed):
     """generate the output filename.
     """
-    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(f+n-1)+".json"
+    f = None
+    l = None
+    for key in ed.keys():
+        n = int(key.split(' ')[-1])
+        if f is None: f = n
+        if l is None: l = n
+        if n < f: f = n
+        if l < n: l = n
+    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(l)+".json"
 
 def load_file(addr, fevent=1, nevents=0):
     """
@@ -46,29 +54,30 @@ def load_file(addr, fevent=1, nevents=0):
         metadata = fh.store_metadata(f)
         events  = []
 
-        nevent = fevent
+        ei = 0
         while True:
             event = fh.store_event(f)
             if not event: break # Reached end of file.
+            ei += 1
+            if ei < fevent: continue # Dump events before first to be read.
             events.append(event)
-            if nevents != 0 and nevent-fevent >= nevents: break
-            nevent += 1
+            if nevents != 0 and ei-fevent+1 >= nevents: break
 
     return (metadata, events)
 
-def generate_output(eventdict, filename, fevent, nevents, outamnt=0):
+def generate_output(eventdict, filename, outamnt=0):
     """Calls appropiate output function based in outamnt.
     """
     switch = [_export0, _export1, _export2]
-    switch[outamnt](eventdict, filename, fevent, nevents)
+    switch[outamnt](eventdict, filename)
 
-def _export0(eventdict, in_filename, fevent, nevents):
+def _export0(eventdict, in_filename):
     print(json.dumps(eventdict, indent=4, sort_keys=True))
 
-def _export1(eventdict, in_filename, fevent, nevents):
+def _export1(eventdict, in_filename):
     Path(c.OUTPATH).mkdir(exist_ok=True)
-    with open(c.OUTPATH + "/" + generate_outfilename(in_filename, fevent, nevents), 'w') as f:
+    with open(c.OUTPATH + "/" + generate_outfilename(in_filename, eventdict), 'w') as f:
         json.dump(eventdict, f, indent=4, sort_keys=True)
 
-def _export2(eventdict, in_filename, fevent, nevents):
+def _export2(eventdict, in_filename):
     print("TODO 2")
