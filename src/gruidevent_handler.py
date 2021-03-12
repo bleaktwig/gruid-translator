@@ -62,7 +62,7 @@ def generate_timeseries(hits, deltax, deltay, dt, dx, dy):
                 #       don't think adding the extra computing time and error checking is worth it.
                 print("FATAL ERROR: Something is deeply wrong in the input data.", file=sys.stderr)
                 exit()
-            phits[(int((deltay+sy)/dy),int((deltax+sx)/dx))] = chits['E'][hi]*10**6
+            phits[str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))] = chits['E'][hi]*10**6
 
             for key in chits.keys():
                 chits[key].pop(hi)
@@ -72,10 +72,9 @@ def generate_timeseries(hits, deltax, deltay, dt, dx, dy):
         else:             tseries[t] = phits
     return tseries
 
-def generate_event(ei, hits, nrows, ncols, dt, dx, dy):
+def generate_event(hits, nrows, ncols, dt, dx, dy):
     """
     Generates an event in a standard gruid .json format, as is described in the attached README.md.
-    :param ei:    event number.
     :param hits:  list of hits in the output format of the extract_hits() method.
     :param nrows: number of rows in the array of scintillating fibers.
     :param ncols: number of columns in the array of scintillating fibers.

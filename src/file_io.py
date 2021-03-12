@@ -8,8 +8,15 @@ Handles files, as in loading GEMC files and saving sparse matrices as external o
 only file allowed to handle IO.
 """
 
+import json
 import re
 import gemcfile_handler as fh
+
+def split_address(addr):
+    """Split an address into path and filename.
+    """
+    addrlist = addr.split('/')
+    return ('/'.join(addrlist[0:-1]), addrlist[-1])
 
 def decode_filename(addr):
     """Decode filename and return nrows and ncols in one line.
@@ -50,21 +57,11 @@ def generate_output(eventdict, outamnt):
     switch[outamnt](eventdict)
 
 def export0(eventdict):
-    for ei in eventdict.keys():
-        print("=== event %d =================================================================" % ei)
-        print("  metadata: ", end='')
-        print(eventdict[ei]["metadata"])
-        for si in range(1,3):
-            sidename = "side " + str(si)
-            print("  %s hits:" % (sidename))
-            for ti in eventdict[ei][sidename]:
-                if eventdict[ei][sidename][ti] is None: continue
-                print("    t = %6.4f ns" % (ti))
-                for key in eventdict[ei][sidename][ti].keys():
-                    print("      (%3d,%3d): %10.7f eV" % (key[0],key[1],eventdict[ei][sidename][ti][key]))
+    print(json.dumps(eventdict, indent=4, sort_keys=True))
 
 def export1(eventdict):
-    print("TODO 1")
+    with open("../out/result.json", 'w') as fp:
+        json.dump(eventdict, fp, indent=4, sort_keys=True)
 
 def export2(eventdict):
     print("TODO 2")

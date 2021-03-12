@@ -30,7 +30,7 @@ import gruidevent_handler as gruid_eh
 #                   * 1: An output file containing the time series is generated.
 #                   * 2: Apart from the normal output file, two additional files are generated.
 #                        "meta_$FILENAME.txt" contains the simulation metadata, and
-#                        "hits_$FILENAME.txt" contains a list of hits per event.
+#                        "hits_$FILENAME.txt" contains a list of hits per event as defined by gemc.
 
 # What is set by flags:
 ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
@@ -39,19 +39,19 @@ nevents = 5
 dt      = 0.05 # ns
 dx      = 0.1  # cm
 dy      = 0.1  # cm
-nrows   = 0
-ncols   = 0
+nrows   = None
+ncols   = None
 # NOTE: Energy is in eV
-
 # TO BE HANDLED
 outamnt = 0
 
-if nrows == 0 and ncols == 0: (nrows, ncols) = io.decode_filename(ifile)
+(path, filename) = io.split_address(ifile)
+if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename)
 (metadata, events) = io.load_file(ifile, fevent, nevents)
 ei = fevent
 eventdict = {}
 for event in events:
     ei += 1
     hits = gemc_eh.extract_hits(event)
-    eventdict[ei] = gruid_eh.generate_event(ei, hits, nrows, ncols, dt, dx, dy)
+    eventdict[filename + " event " + str(ei)] = gruid_eh.generate_event(hits, nrows, ncols, dt, dx, dy)
 io.generate_output(eventdict, outamnt)
