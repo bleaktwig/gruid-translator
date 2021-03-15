@@ -54,6 +54,6 @@ def extract_hits(event):
         hits[key][c.S_X].append(float(event[c.IRBANK][c.S_AVGX][hi])/10.)   # x position (cm).
         hits[key][c.S_Y].append(float(event[c.IRBANK][c.S_AVGY][hi])/10.)   # y position (cm).
         hits[key][c.S_T].append(float(event[c.IRBANK][c.S_AVGT][hi]))       # Time (ns).
-        hits[key][c.S_E].append(float(event[c.IRBANK][c.S_EDEP][hi])*10**6) # Energy deposited (eV).
+        hits[key][c.S_E].append(float(event[c.IRBANK][c.S_EDEP][hi])) # Energy deposited (MeV).
 
     return hits
