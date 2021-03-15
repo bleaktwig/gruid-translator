@@ -55,7 +55,7 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
             sy = None
             for y in numpy.arange(-deltay, deltay+dy, dy):
                 if y <= chits[c.S_Y][hi] and chits[c.S_Y][hi] < y+dy: sy = y
-            if not sx or not sy:
+            if sx is None or sy is None:
                 # NOTE: There is a very particular case where this conditional might be triggered
                 #       "by accident". If either dx or dy perfectly divides 2*deltax or 2*deltay
                 #       respectively and a hit happens exactly at an edge... kaboom, a hit is lost.
@@ -74,7 +74,7 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
         if hitstored: tseries[t] = phits
     return tseries
 
-def generate_event(hits, nrows, ncols, dt, dx, dy):
+def generate_event(hits, in_nrows, in_ncols, dt, dx, dy):
     """
     Generates an event in a standard gruid .json format, as is described in the attached README.md.
     :param hits:  list of hits in the output format of the extract_hits() method.
@@ -87,7 +87,9 @@ def generate_event(hits, nrows, ncols, dt, dx, dy):
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
     """
-    event = {c.S_GRUIDMETA: {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:nrows, c.S_NCOLS:ncols}}
-    event[c.S_GRUIDH1] = _gen_ts(hits[c.S_PHOTONH1], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
-    event[c.S_GRUIDH2] = _gen_ts(hits[c.S_PHOTONH2], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    out_nrows = math.ceil(2*c.DELTAY(in_nrows)/dy)
+    out_ncols = math.ceil(2*c.DELTAX(in_ncols)/dx)
+    event = {c.S_GRUIDMETA: {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols}}
+    event[c.S_GRUIDH1] = _gen_ts(hits[c.S_PHOTONH1], c.DELTAX(in_ncols), c.DELTAY(in_nrows), dt, dx, dy)
+    event[c.S_GRUIDH2] = _gen_ts(hits[c.S_PHOTONH2], c.DELTAX(in_ncols), c.DELTAY(in_nrows), dt, dx, dy)
     return event
