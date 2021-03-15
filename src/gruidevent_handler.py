@@ -9,7 +9,7 @@ Handles gruid events. Generates gruid events with matrix time series for a set o
 
 import copy
 import math
-import numpy # TODO: We could do without numpy...
+import numpy # NOTE: We could do without numpy...
 import sys
 
 import constants as c

@@ -36,8 +36,8 @@ def run(ifile, dt, dx, dy, fevent, nevents, outtype, nrows, ncols):
     (metadata, events) = io.load_file(ifile, fevent, nevents)
 
     ei = fevent
-    gemchitsdict = {}
-    gruidhitsdict   = {}
+    gemchitsdict  = {}
+    gruidhitsdict = {}
     for event in events:
         key = filename + " event " + str(ei)
         gemchitsdict[key]  = gemc_eh.extract_hits(event)
