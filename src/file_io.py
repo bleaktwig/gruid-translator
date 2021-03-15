@@ -11,6 +11,7 @@ only file allowed to handle IO.
 from pathlib import Path
 import json
 import re
+import os
 
 import constants as c
 import gemcfile_handler as fh
@@ -25,6 +26,11 @@ def decode_filename(addr):
     """Decode filename and return nrows and ncols in one line.
     """
     return [int(re.findall(r'\d+', addr)[i]) for i in range(-2, 0)]
+
+def get_path():
+    """Get the path to the out directory.
+    """
+    return (os.path.abspath(os.path.dirname(__file__)) + "/../out/")
 
 def generate_outfilename(addr, ed):
     """generate the output filename.
@@ -42,7 +48,7 @@ def generate_outfilename(addr, ed):
 def store_dict(dict, addr):
     """Store a dictionary as a json file to the given addr.
     """
-    Path(c.OUTPATH).mkdir(exist_ok=True)
+    Path(get_path()).mkdir(exist_ok=True)
     with open(addr, 'w') as f:
         json.dump(dict, f, indent=4, sort_keys=True)
 
@@ -85,7 +91,7 @@ def _export0(gruidhitsdict, gemchitsdict, metadata, in_filename):
 def _export1(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """Save gruidhitsdict in a json file.
     """
-    store_dict(gruidhitsdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(gruidhitsdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
 
 def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """Save gruidhits and muon hits to a json file.
@@ -94,7 +100,7 @@ def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename):
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key]
         eventdict[key][c.S_PARTHITS] = gemchitsdict[key][c.S_PARTHITS]
-    store_dict(eventdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
 
 def _export3(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """Save all hit data to json file.
@@ -102,7 +108,7 @@ def _export3(gruidhitsdict, gemchitsdict, metadata, in_filename):
     eventdict = {}
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key] | gemchitsdict[key]
-    store_dict(eventdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
 
 def _export4(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """Save all hit data and gemc metadata to json file.
@@ -111,4 +117,4 @@ def _export4(gruidhitsdict, gemchitsdict, metadata, in_filename):
     eventdict[c.S_GEMCMETA] = metadata
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key] | gemchitsdict[key]
-    store_dict(eventdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))

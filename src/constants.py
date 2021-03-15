@@ -10,9 +10,9 @@ GEMC, with some additional stuff to help standardize the program.
 
 # Usage strings.
 IHELP = "path of the gemc file to be processed."
-THELP = "length of each time step for the generated time series."
-XHELP = "length of each row for each of the time series' matrices."
-YHELP = "length of each column for each of the time series' matrices."
+THELP = "length of each time step for the generated time series in ns."
+XHELP = "length of each row for each of the time series' matrices in cm."
+YHELP = "length of each column for each of the time series' matrices in cm."
 FHELP = "event number of the first event in the gemc file that should be read. Note that " \
         "events are counted from 1 onward. Default is 1."
 NHELP = "number of events to read, counting from the file set with FEVENT. Set to 0 to read " \
