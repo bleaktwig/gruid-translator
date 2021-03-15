@@ -61,7 +61,7 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
                 #       respectively and a hit happens exactly at an edge... kaboom, a hit is lost.
                 #       The probability of this happening in a 64-bit computer is pretty low, so I
                 #       don't think adding the extra computing time and error checking is worth it.
-                print("FATAL ERROR: Something is deeply wrong in the input data.", file=sys.stderr)
+                print("ERROR: Something is deeply wrong in the input data.", file=sys.stderr)
                 exit()
 
             key = str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))

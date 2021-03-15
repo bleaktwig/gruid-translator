@@ -71,11 +71,11 @@ def load_file(addr, fevent=1, nevents=0):
 
     return (metadata, events)
 
-def generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outamnt=0):
-    """Calls appropiate output function based in outamnt.
+def generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outtype=0):
+    """Calls appropiate output function based in outtype.
     """
     switch = [_export0, _export1, _export2, _export3, _export4]
-    switch[outamnt](gruidhitsdict, gemchitsdict, metadata, filename)
+    switch[outtype-1](gruidhitsdict, gemchitsdict, metadata, filename)
 
 def _export0(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """Print gruidhitsdict to stdout.

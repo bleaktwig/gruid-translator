@@ -9,58 +9,66 @@
 TODO.
 """
 
+import argparse
+import sys
+import constants as c
 import file_io as io
 import gemcevent_handler as gemc_eh
 import gruidevent_handler as gruid_eh
 
-# FLAGS
-# --ifile (-i):   Input file to open. No default value.
-# --fevent (-f):  First event to read. Useful when handling very large files. Note that events are
-#                 counted from 1. Default is 1.
-# --nevents (-n): Number of events to read, counting from the file set with --fevent. Set to 0 to
-#                 read until the end of file. Default 0.
-# --dt (-t):      No default value, must be set.
-# --dx (-x):      No default value, must be set.
-# --dy (-y):      No default value, must be set.
-# --nrows (-r):   Number of rows used in the simulation. By default it's read from the filename. If
-#                 unavailable, will be requested from the user.
-# --ncols (-c):   Number of columns used in the simulation. By default it's read from the filename.
-#                 if unavailable, will be requested from the user.
-# --outamnt (-o): Amount of export files to be generated. Can be 0, 1, or 2. Default is 1.
-#                   * 0: No files are exported, generated matrices are printed to std output.
-#                   * 1: An output file containing the time series is stored in out/.
-#                   * 2: An output file containing the time series and the muon hits is stored in
-#                        out/.
-#                   * 3: An output file containing the time series and the muon and photon hits is
-#                        stored in out/.
-#                   * 4: An output file containing the time series, the muon and photon hits, and
-#                        the original gemc file metadata is stored in out/.
+def setup_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename",        help=c.IHELP)
+    parser.add_argument("dt",              help=c.THELP, type=float)
+    parser.add_argument("dx",              help=c.XHELP, type=float)
+    parser.add_argument("dy",              help=c.YHELP, type=float)
+    parser.add_argument("-f", "--fevent",  help=c.FHELP, type=int)
+    parser.add_argument("-n", "--nevents", help=c.NHELP, type=int)
+    parser.add_argument("-o", "--outtype", help=c.OHELP, type=int)
+    parser.add_argument("-r", "--nrows",   help=c.RHELP, type=int)
+    parser.add_argument("-c", "--ncols",   help=c.CHELP, type=int)
+    args = parser.parse_args()
+    return args
 
+def run(ifile, dt, dx, dy, fevent, nevents, outtype, nrows, ncols):
+    (path, filename) = io.split_address(ifile)
+    if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename)
+    (metadata, events) = io.load_file(ifile, fevent, nevents)
 
-# What is set by flags:
-ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
-fevent  = 1
-nevents = 1
-dt      = 0.05 # ns
-dx      = 0.1  # cm
-dy      = 0.1  # cm
-nrows   = None
-ncols   = None
-outamnt = 3
-# NOTE: Energy is in eV
+    ei = fevent
+    gemchitsdict = {}
+    gruidhitsdict   = {}
+    for event in events:
+        key = filename + " event " + str(ei)
+        gemchitsdict[key]  = gemc_eh.extract_hits(event)
+        gruidhitsdict[key] = gruid_eh.generate_event(gemchitsdict[key], nrows, ncols, dt, dx, dy)
+        ei += 1
+    io.generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outtype)
 
-(path, filename) = io.split_address(ifile)
-if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename)
-(metadata, events) = io.load_file(ifile, fevent, nevents)
+def main():
+    args = setup_parser()
 
-ei = fevent
-gemchitsdict = {}
-gruidhitsdict   = {}
-for event in events:
-    key = filename + " event " + str(ei)
-    gemchitsdict[key]  = gemc_eh.extract_hits(event)
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
-    gruidhitsdict[key] = gruid_eh.generate_event(gemchitsdict[key], nrows, ncols, dt, dx, dy)
-    ei += 1
-io.generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outamnt)
+    # Process arguments.
+    ifile = args.filename
+    dt = args.dt
+    dx = args.dx
+    dy = args.dy
+    fevent = 1
+    if args.fevent: fevent = args.fevent
+    nevents = 0
+    if args.nevents: nevents = args.nevents
+    outtype = 2
+    if args.outtype:
+        outtype = args.outtype
+        if outtype < 1 or outtype > 5:
+            print("ERROR: OUTTYPE should be between 1 and 5. Exiting...", file=sys.stderr)
+            exit()
+    nrows = None
+    if args.nrows: nrows = args.nrows
+    ncols = None
+    if args.ncols: ncols = args.ncols
+
+    run(ifile, dt, dx, dy, fevent, nevents, outtype, nrows, ncols)
+
+if __name__ == "__main__":
+    main()

@@ -8,6 +8,22 @@ A list of constants used by the entire program. Mainly contains strings hardcode
 GEMC, with some additional stuff to help standardize the program.
 """
 
+# Usage strings.
+IHELP = "path of the gemc file to be processed."
+THELP = "length of each time step for the generated time series."
+XHELP = "length of each row for each of the time series' matrices."
+YHELP = "length of each column for each of the time series' matrices."
+FHELP = "event number of the first event in the gemc file that should be read. Note that " \
+        "events are counted from 1 onward. Default is 1."
+NHELP = "number of events to read, counting from the file set with FEVENT. Set to 0 to read " \
+        "until the end of file. Default is 0."
+OHELP = "type of output to be generated. Can be any integer from 1 to 5. Check the README for a " \
+        "detailed description of each alternative. Default is 2"
+RHELP = "number of rows set in the gemc simulation. By default this is read from the " \
+        "filename, but this argument can be set to override this behaviour."
+CHELP = "number of columns set in the gemc simulation. By default this is read from the " \
+        "filename, but this argument can be set to override this behaviour."
+
 # Paths, prefixes, etc.
 OUTPATH = "../out"
 OUTPREF = "out_"
