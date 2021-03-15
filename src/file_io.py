@@ -99,7 +99,7 @@ def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename):
     eventdict = {}
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key]
-        eventdict[key][c.S_PARTHITS] = gemchitsdict[key][c.S_PARTHITS]
+        eventdict[key][c.S_MUONHITS] = gemchitsdict[key][c.S_MUONHITS]
     store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
 
 def _export3(gruidhitsdict, gemchitsdict, metadata, in_filename):

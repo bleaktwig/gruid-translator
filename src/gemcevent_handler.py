@@ -29,7 +29,7 @@ def extract_hits(event):
     if event is None: return None
     # Define hits dictionaries (one per detecting surface).
     hitdict = {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],}
-    hits = {c.S_PARTHITS: copy.deepcopy(hitdict),
+    hits = {c.S_MUONHITS: copy.deepcopy(hitdict),
             c.S_PHOTONH1: copy.deepcopy(hitdict),
             c.S_PHOTONH2: copy.deepcopy(hitdict),}
 
@@ -38,7 +38,7 @@ def extract_hits(event):
 
         # Determine hit source.
         key = None
-        if event[c.IRBANK][c.S_PID][hi] == "-13": key = c.S_PARTHITS   # Hit is from a muon.
+        if event[c.IRBANK][c.S_PID][hi] == "-13": key = c.S_MUONHITS   # Hit is from a muon.
         elif event[c.IRBANK][c.S_PID][hi] == '0': key = c.S_PHOTONHITS # Hit is from a photon.
 
         # Process photon hits
