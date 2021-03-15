@@ -7,14 +7,18 @@
 Handles GEMC events. Currently only extracts the relevant hits for an event.
 """
 
+import copy
 import constants as c
 
 def extract_hits(event):
     """
-    Extract hits from an event.
+    Extract photon hits with energy larger than 0 from an event.
     :param event: one event in the format defined by the store_event() method.
-    :return:      a 2-tuple containing dictionaries describing the hits in arrays. Dictionaries'
-                  keys are the following:
+    :return:      A dictionary containing 3 dictionaries that describe the hits. The three
+                  dictionaries contain the particle hits --which generate the photons--, and the
+                  photon hits that deposited energy in the endplates. The first is added to the
+                  output of the program, while the two other are used to generate the gruid hits.
+                  The dictionaries' keys are the following:
                     * n: hit identifier. Unused by this program, but useful in reconstruction.
                     * x: x position of the hit in cm.
                     * y: y position of the hit in cm.
@@ -24,23 +28,32 @@ def extract_hits(event):
     """
     if event is None: return None
     # Define hits dictionaries (one per detecting surface).
-    hits = {c.S_GEMCH1: {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],},
-            c.S_GEMCH2: {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],},}
+    hitdict = {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],}
+    hits = {c.S_PARTHITS: copy.deepcopy(hitdict),
+            c.S_PHOTONH1: copy.deepcopy(hitdict),
+            c.S_PHOTONH2: copy.deepcopy(hitdict),}
 
     for hi in range(len(event[c.IDBANK][c.S_HITN])):
-        if event[c.IRBANK][c.S_PID] [hi] != '0': continue # Ignore hits not from photons.
         if event[c.IRBANK][c.S_EDEP][hi] == '0': continue # Ignore hits with no energy deposited.
-        vol = None # Save the volume hit.
-        volid = int(int(event[c.IDBANK][c.S_VOL][hi])/10**8)
-        if volid == c.SENSOR1A_ID or volid == c.SENSOR1B_ID: vol = c.S_GEMCH1
-        if volid == c.SENSOR2A_ID or volid == c.SENSOR2B_ID: vol = c.S_GEMCH2
-        if vol is None: continue
 
-        # Add hit to dictionary, converting them to their appropiate units.
-        hits[vol][c.S_N].append(float(event[c.IDBANK][c.S_HITN][hi]))       # hit identifier.
-        hits[vol][c.S_X].append(float(event[c.IRBANK][c.S_AVGX][hi])/10.)   # x position (in cm).
-        hits[vol][c.S_Y].append(float(event[c.IRBANK][c.S_AVGY][hi])/10.)   # y position (in cm).
-        hits[vol][c.S_T].append(float(event[c.IRBANK][c.S_AVGT][hi]))       # Time (in ns).
-        hits[vol][c.S_E].append(float(event[c.IRBANK][c.S_EDEP][hi])*10**6) # Energy deposited (in eV).
+        # Determine hit source.
+        key = None
+        if event[c.IRBANK][c.S_PID][hi] == "-13": key = c.S_PARTHITS   # Hit is from a muon.
+        elif event[c.IRBANK][c.S_PID][hi] == '0': key = c.S_PHOTONHITS # Hit is from a photon.
+
+        # Process photon hits
+        if key == c.S_PHOTONHITS:
+            volid = int(int(event[c.IDBANK][c.S_VOL][hi])/10**8)
+            if volid == c.SENSOR1A_ID or volid == c.SENSOR1B_ID: key = c.S_PHOTONH1
+            if volid == c.SENSOR2A_ID or volid == c.SENSOR2B_ID: key = c.S_PHOTONH2
+
+        if key is None or key == c.S_PHOTONHITS: continue # Ignore uninteresting hits.
+
+        # Add hit to dictionary, converting data to appropiate units.
+        hits[key][c.S_N].append(int  (event[c.IDBANK][c.S_HITN][hi]))       # hit identifier.
+        hits[key][c.S_X].append(float(event[c.IRBANK][c.S_AVGX][hi])/10.)   # x position (cm).
+        hits[key][c.S_Y].append(float(event[c.IRBANK][c.S_AVGY][hi])/10.)   # y position (cm).
+        hits[key][c.S_T].append(float(event[c.IRBANK][c.S_AVGT][hi]))       # Time (ns).
+        hits[key][c.S_E].append(float(event[c.IRBANK][c.S_EDEP][hi])*10**6) # Energy deposited (eV).
 
     return hits

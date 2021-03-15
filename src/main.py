@@ -28,10 +28,14 @@ import gruidevent_handler as gruid_eh
 #                 if unavailable, will be requested from the user.
 # --outamnt (-o): Amount of export files to be generated. Can be 0, 1, or 2. Default is 1.
 #                   * 0: No files are exported, generated matrices are printed to std output.
-#                   * 1: An output file containing the time series is generated in out/.
-#                   * 2: Apart from the normal output file, two additional files are generated.
-#                        "meta_$FILENAME.txt" contains the simulation metadata, and
-#                        "hits_$FILENAME.txt" contains a list of hits per event as defined by gemc.
+#                   * 1: An output file containing the time series is stored in out/.
+#                   * 2: An output file containing the time series and the muon hits is stored in
+#                        out/.
+#                   * 3: An output file containing the time series and the muon and photon hits is
+#                        stored in out/.
+#                   * 4: An output file containing the time series, the muon and photon hits, and
+#                        the original gemc file metadata is stored in out/.
+
 
 # What is set by flags:
 ifile   = "/home/twig/data/code/babycal/bcal_generator/bcal_20210311122138_r11c11.txt"
@@ -42,7 +46,7 @@ dx      = 0.1  # cm
 dy      = 0.1  # cm
 nrows   = None
 ncols   = None
-outamnt = 2
+outamnt = 3
 # NOTE: Energy is in eV
 
 (path, filename) = io.split_address(ifile)
@@ -50,11 +54,13 @@ if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename
 (metadata, events) = io.load_file(ifile, fevent, nevents)
 
 ei = fevent
-gemchitdict  = {}
-gruidhitsdict = {}
+gemchitsdict = {}
+gruidhitsdict   = {}
 for event in events:
     key = filename + " event " + str(ei)
-    gemchitdict [key] = gemc_eh.extract_hits(event)
-    gruidhitsdict[key] = gruid_eh.generate_event(gemchitdict[key], nrows, ncols, dt, dx, dy)
+    gemchitsdict[key]  = gemc_eh.extract_hits(event)
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    gruidhitsdict[key] = gruid_eh.generate_event(gemchitsdict[key], nrows, ncols, dt, dx, dy)
     ei += 1
-io.generate_output(gruidhitsdict, gemchitdict, metadata, filename, outamnt)
+io.generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outamnt)

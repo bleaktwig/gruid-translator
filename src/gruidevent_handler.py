@@ -33,7 +33,7 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
                    specific t, that t isn't event stored in the time series.
     """
     if not hits: return None
-    chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original array.
+    chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original dictionary.
 
     tseries = {}
     max_t = 0.
@@ -88,6 +88,6 @@ def generate_event(hits, nrows, ncols, dt, dx, dy):
                   NoneType object is stored instead of an empty matrix.
     """
     event = {c.S_GRUIDMETA: {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:nrows, c.S_NCOLS:ncols}}
-    event[c.S_GRUIDH1] = _gen_ts(hits[c.S_GEMCH1], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
-    event[c.S_GRUIDH2] = _gen_ts(hits[c.S_GEMCH2], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    event[c.S_GRUIDH1] = _gen_ts(hits[c.S_PHOTONH1], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
+    event[c.S_GRUIDH2] = _gen_ts(hits[c.S_PHOTONH2], c.DELTAX(ncols), c.DELTAY(nrows), dt, dx, dy)
     return event

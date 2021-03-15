@@ -74,7 +74,7 @@ def load_file(addr, fevent=1, nevents=0):
 def generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outamnt=0):
     """Calls appropiate output function based in outamnt.
     """
-    switch = [_export0, _export1, _export2]
+    switch = [_export0, _export1, _export2, _export3, _export4]
     switch[outamnt](gruidhitsdict, gemchitsdict, metadata, filename)
 
 def _export0(gruidhitsdict, gemchitsdict, metadata, in_filename):
@@ -87,7 +87,24 @@ def _export1(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """
     store_dict(gruidhitsdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
 
-def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename): # TODO: Can be heavily improved.
+def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename):
+    """Save gruidhits and muon hits to a json file.
+    """
+    eventdict = {}
+    for key in gruidhitsdict:
+        eventdict[key] = gruidhitsdict[key]
+        eventdict[key][c.S_PARTHITS] = gemchitsdict[key][c.S_PARTHITS]
+    store_dict(eventdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+
+def _export3(gruidhitsdict, gemchitsdict, metadata, in_filename):
+    """Save all hit data to json file.
+    """
+    eventdict = {}
+    for key in gruidhitsdict:
+        eventdict[key] = gruidhitsdict[key] | gemchitsdict[key]
+    store_dict(eventdict, c.OUTPATH+'/'+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+
+def _export4(gruidhitsdict, gemchitsdict, metadata, in_filename):
     """Save all hit data and gemc metadata to json file.
     """
     eventdict = {}

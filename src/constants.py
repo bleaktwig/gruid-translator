@@ -38,26 +38,27 @@ S_AVGT     = "avg_t"
 S_EDEP     = "totEdep"
 
 # Strings defined and used by this program.
-S_GEMCMETA = "gemc metadata"
-S_GRUIDMETA = "event metadata"
-S_NROWS = "nrows"
-S_NCOLS = "ncols"
-S_GEMCHITS  = "gemc hits"
-S_GRUIDHITS = "gruid hits"
-S_SIDE1 = "side 1"
-S_SIDE2 = "side 2"
-S_GEMCH1   = S_GEMCHITS   + " - " + S_SIDE1
-S_GEMCH2   = S_GEMCHITS   + " - " + S_SIDE2
-S_GRUIDH1   = S_GRUIDHITS + " - " + S_SIDE1
-S_GRUIDH2   = S_GRUIDHITS + " - " + S_SIDE2
-S_N     = 'n'
-S_X     = 'x'
-S_Y     = 'y'
-S_T     = 't'
-S_E     = 'E'
-S_DT    = "dt"
-S_DX    = "dx"
-S_DY    = "dy"
+S_GEMCMETA   = "gemc metadata"
+S_GRUIDMETA  = "gruid metadata"
+S_NROWS      = "nrows"
+S_NCOLS      = "ncols"
+S_PARTHITS   = "particle hits"
+S_PHOTONHITS = "photon hits"
+S_GRUIDHITS  = "gruid hits"
+S_SIDE1      = "side 1"
+S_SIDE2      = "side 2"
+S_PHOTONH1 = S_PHOTONHITS + " - " + S_SIDE1
+S_PHOTONH2 = S_PHOTONHITS + " - " + S_SIDE2
+S_GRUIDH1  = S_GRUIDHITS  + " - " + S_SIDE1
+S_GRUIDH2  = S_GRUIDHITS  + " - " + S_SIDE2
+S_N  = 'n'
+S_X  = 'x'
+S_Y  = 'y'
+S_T  = 't'
+S_E  = 'E'
+S_DT = "dt"
+S_DX = "dx"
+S_DY = "dy"
 
 # IDs of the sensor endplates, as defined by the gemc simulation.
 SENSOR1A_ID =  4
