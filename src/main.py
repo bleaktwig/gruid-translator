@@ -6,7 +6,12 @@
 # all copyright and related or neighboring rights to Gruid Translator.
 
 """
-TODO.
+Gruid Translator is a small tool in Python that attempts to convert a GEMC simulation of a generic
+calorimeter detector to a format more similar to how the output is seen in real life.
+
+Taking a .txt file exported by bcal_generator (https://github.com/emolinac/bcal), this tool
+generates a time series of sparse matrices detailing the location and energy deposited of hits in
+the scintillating fibers. It can also export these matrices as .json files for easy loading.
 """
 
 import argparse
@@ -39,7 +44,7 @@ def run(ifile, dt, dx, dy, fevent, nevents, outtype, nrows, ncols):
     gemchitsdict  = {}
     gruidhitsdict = {}
     for event in events:
-        key = filename + " event " + str(ei)
+        key = filename + ' ' + c.S_EVENT + ' ' + str(ei)
         gemchitsdict[key]  = gemc_eh.extract_hits(event)
         gruidhitsdict[key] = gruid_eh.generate_event(gemchitsdict[key], nrows, ncols, dt, dx, dy)
         ei += 1

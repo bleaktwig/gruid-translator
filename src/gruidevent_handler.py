@@ -59,9 +59,10 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
                 # NOTE: There is a very particular case where this conditional might be triggered
                 #       "by accident". If either dx or dy perfectly divides 2*deltax or 2*deltay
                 #       respectively and a hit happens exactly at an edge... kaboom, a hit is lost.
-                #       The probability of this happening in a 64-bit computer is pretty low, so I
+                #       The probability of this happening on a 64-bit computer is pretty low, so I
                 #       don't think adding the extra computing time and error checking is worth it.
-                print("ERROR: Something is deeply wrong in the input data.", file=sys.stderr)
+                print("ERROR: Either something is deeply wrong in the input data, or nrows and/or " \
+                      "ncols is set wrong. It's probably the latter.", file=sys.stderr)
                 exit()
 
             key = str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))

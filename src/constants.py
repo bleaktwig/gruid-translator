@@ -25,7 +25,6 @@ CHELP = "number of columns set in the gemc simulation. By default this is read f
         "filename, but this argument can be set to override this behaviour."
 
 # Paths, prefixes, etc.
-OUTPATH = "../out"
 OUTPREF = "out_"
 
 # Generic strings used to identify banks by name in python code.
@@ -54,6 +53,7 @@ S_AVGT     = "avg_t"
 S_EDEP     = "totEdep"
 
 # Strings defined and used by this program.
+S_EVENT      = "event"
 S_GEMCMETA   = "gemc metadata"
 S_GRUIDMETA  = "gruid metadata"
 S_NROWS      = "nrows"
