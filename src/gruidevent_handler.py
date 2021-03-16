@@ -61,15 +61,15 @@ def _gen_ts(hits, deltax, deltay, dt, dx, dy):
                 #       respectively and a hit happens exactly at an edge... kaboom, a hit is lost.
                 #       The probability of this happening on a 64-bit computer is pretty low, so I
                 #       don't think adding the extra computing time and error checking is worth it.
-                print("ERROR: Either something is deeply wrong in the input data, or nrows and/or " \
-                      "ncols is set wrong. It's probably the latter.", file=sys.stderr)
+                print("ERROR: Either something is deeply wrong in the input data, or nrows and/or" \
+                      " ncols is set wrong. It's probably the latter.", file=sys.stderr)
                 exit()
 
-            key = str(int((deltay+sy)/dy)) + "," + str(int((deltax+sx)/dx))
-            if key in phits: phits[key] += chits[c.S_E][hi]
-            else:            phits[key]  = chits[c.S_E][hi]
+            okey = str(int((deltax+sx)/dx)) + ',' + str(int((deltay+sy)/dy))
+            if okey in phits: phits[okey] += chits[c.S_E][hi]
+            else:             phits[okey]  = chits[c.S_E][hi]
 
-            for key in chits.keys(): chits[key].pop(hi)
+            for ikey in chits.keys(): chits[ikey].pop(hi)
             hitstored = True
 
         if hitstored: tseries[t] = phits

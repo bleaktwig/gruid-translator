@@ -69,7 +69,7 @@ event.
 * **gruid hits - side n**: hits in the "standard gruid format" for one detector side (can be 1 or
 2).
 The following keys are the instants of time for the time series.
-Following these, the keys are in a format `x`,`y`, representing the position in the generated
+Following these, the keys are in a format (`x,y`), representing the position in the generated
 matrix, and their value is the deposited energy **in MeV**.
 * **muon hits**: Contains all the muon hits in the event.
 `n` is the hit number (as defined by gemc), `t` the time in ns, `x` and `y` the position in cm, and
