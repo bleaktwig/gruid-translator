@@ -58,20 +58,20 @@ Sorry!
 ## Output Format
 The `.json` file generated follows a very simple format.
 
-The first key contains the name of the input file and the event number.
-The filename is included in case the user wants to merge generated `.json` files.
+The first keys contain the name of the input file and the event number.
+The filename is included in case the user wants to merge various generated `.json` files.
 
 The amount of second keys vary depending on the `OUTTYPE` set to generate them.
 Each of these and their following keys are listed here:
 * **gruid metadata**: metadata for the time series generated, added to simplify the user's life.
-contains the `dt`, `dx`, `dy`, and the number of rows and columns in the generated matrices for that
+Contains the `dt`, `dx`, `dy`, and the number of rows and columns in the generated matrices for that
 event.
-* **gruid hits - side n**: hits in the "standard gruid format" for one detector side (can be 1 or
-2).
+* **gruid hits - side n**: hits in the "standard gruid format" for one detector side (**n** can be 1
+or 2).
 The following keys are the instants of time for the time series.
 Following these, the keys are in a format (`x,y`), representing the position in the generated
 matrix, and their value is the deposited energy **in MeV**.
-* **muon hits**: Contains all the muon hits in the event.
+* **muon hits**: Contains all the muon hits registered in the event.
 `n` is the hit number (as defined by gemc), `t` the time in ns, `x` and `y` the position in cm, and
 `E` the energy deposited in MeV.
 * **photon hits - side n**: photon hits to the detecting surfaces in the event.
