@@ -46,7 +46,7 @@ This option can generate a truckload of output, so use with caution!
 * `2`: A `.json` file containing the time series is stored in `out/`.
 This is the default option.
 * `3`: The muon hits are added to the exported file.
-This are the targets for reconstruction.
+These are the targets for reconstruction.
 * `4`: The photon hits used to generate the time series are added to the exported file.
 This can aid in debugging.
 * `5`: The metadata taken from the GEMC input file is added to the `.json` file.
