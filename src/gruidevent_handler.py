@@ -90,7 +90,7 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy):
     """
     out_nrows = math.ceil(2*c.DELTAY(in_nrows)/dy)
     out_ncols = math.ceil(2*c.DELTAX(in_ncols)/dx)
-    event = {c.S_GRUIDMETA: {c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols}}
+    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0], c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols}}
     event[c.S_GRUIDH1] = _gen_ts(hits[c.S_PHOTONH1], c.DELTAX(in_ncols), c.DELTAY(in_nrows), dt, dx, dy)
     event[c.S_GRUIDH2] = _gen_ts(hits[c.S_PHOTONH2], c.DELTAX(in_ncols), c.DELTAY(in_nrows), dt, dx, dy)
     return event

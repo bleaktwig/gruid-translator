@@ -41,14 +41,18 @@ def run(ifile, dt, dx, dy, fevent, nevents, outtype, nrows, ncols):
     (metadata, events) = io.load_file(ifile, fevent, nevents)
 
     ei = fevent
-    gemchitsdict  = {}
-    gruidhitsdict = {}
+    ged  = {}
+    grd = {}
     for event in events:
         key = filename + ' ' + c.S_EVENT + ' ' + str(ei)
-        gemchitsdict[key]  = gemc_eh.extract_hits(event)
-        gruidhitsdict[key] = gruid_eh.generate_event(gemchitsdict[key], nrows, ncols, dt, dx, dy)
         ei += 1
-    io.generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outtype)
+        ged[key]  = gemc_eh.extract_hits(event)
+        if len(ged[key][c.S_MASSHITS][c.S_N]) == 0 or \
+                (len(ged[key][c.S_PHOTONH1][c.S_N]) == 0 and len(ged[key][c.S_PHOTONH2][c.S_N]) == 0):
+            del ged[key]
+            continue
+        grd[key] = gruid_eh.generate_event(ged[key], nrows, ncols, dt, dx, dy)
+    io.generate_output(grd, ged, metadata, filename, fevent, nevents, outtype)
 
 def main():
     args = setup_parser()

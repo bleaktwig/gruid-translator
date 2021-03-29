@@ -32,18 +32,10 @@ def get_path():
     """
     return (os.path.abspath(os.path.dirname(__file__)) + "/../out/")
 
-def generate_outfilename(addr, ed):
+def generate_outfilename(addr, f, n):
     """generate the output filename.
     """
-    f = None
-    l = None
-    for key in ed.keys():
-        n = int(key.split(' ')[-1])
-        if f is None: f = n
-        if l is None: l = n
-        if n < f: f = n
-        if l < n: l = n
-    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(l)+".json"
+    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(f+n-1)+".json"
 
 def store_dict(dict, addr):
     """Store a dictionary as a json file to the given addr.
@@ -77,44 +69,45 @@ def load_file(addr, fevent=1, nevents=0):
 
     return (metadata, events)
 
-def generate_output(gruidhitsdict, gemchitsdict, metadata, filename, outtype=0):
+def generate_output(gruidhitsdict, gemchitsdict, metadata, filename, fevent, nevents, outtype=0):
     """Calls appropiate output function based in outtype.
     """
+    outfname = generate_outfilename(filename, fevent, nevents)
     switch = [_export0, _export1, _export2, _export3, _export4]
-    switch[outtype-1](gruidhitsdict, gemchitsdict, metadata, filename)
+    switch[outtype-1](gruidhitsdict, gemchitsdict, metadata, outfname)
 
-def _export0(gruidhitsdict, gemchitsdict, metadata, in_filename):
+def _export0(gruidhitsdict, gemchitsdict, metadata, filename):
     """Print gruidhitsdict to stdout.
     """
     print(json.dumps(gruidhitsdict, indent=4, sort_keys=True))
 
-def _export1(gruidhitsdict, gemchitsdict, metadata, in_filename):
+def _export1(gruidhitsdict, gemchitsdict, metadata, filename):
     """Save gruidhitsdict in a json file.
     """
-    store_dict(gruidhitsdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(gruidhitsdict, get_path()+c.OUTPREF+filename)
 
-def _export2(gruidhitsdict, gemchitsdict, metadata, in_filename):
+def _export2(gruidhitsdict, gemchitsdict, metadata, filename):
     """Save gruidhits and muon hits to a json file.
     """
     eventdict = {}
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key]
-        eventdict[key][c.S_MUONHITS] = gemchitsdict[key][c.S_MUONHITS]
-    store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+        eventdict[key][c.S_MASSHITS] = gemchitsdict[key][c.S_MASSHITS]
+    store_dict(eventdict, get_path()+c.OUTPREF+filename)
 
-def _export3(gruidhitsdict, gemchitsdict, metadata, in_filename):
+def _export3(gruidhitsdict, gemchitsdict, metadata, filename):
     """Save all hit data to json file.
     """
     eventdict = {}
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key] | gemchitsdict[key]
-    store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(eventdict, get_path()+c.OUTPREF+filename)
 
-def _export4(gruidhitsdict, gemchitsdict, metadata, in_filename):
+def _export4(gruidhitsdict, gemchitsdict, metadata, filename):
     """Save all hit data and gemc metadata to json file.
     """
     eventdict = {}
     eventdict[c.S_GEMCMETA] = metadata
     for key in gruidhitsdict:
         eventdict[key] = gruidhitsdict[key] | gemchitsdict[key]
-    store_dict(eventdict, get_path()+c.OUTPREF+generate_outfilename(in_filename, gruidhitsdict))
+    store_dict(eventdict, get_path()+c.OUTPREF+filename)

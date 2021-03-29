@@ -28,8 +28,8 @@ def extract_hits(event):
     """
     if event is None: return None
     # Define hits dictionaries (one per detecting surface).
-    hitdict = {c.S_N : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],}
-    hits = {c.S_MUONHITS: copy.deepcopy(hitdict),
+    hitdict = {c.S_N : [], c.S_PID : [], c.S_X : [], c.S_Y : [], c.S_T : [], c.S_E : [],}
+    hits = {c.S_MASSHITS: copy.deepcopy(hitdict),
             c.S_PHOTONH1: copy.deepcopy(hitdict),
             c.S_PHOTONH2: copy.deepcopy(hitdict),}
 
@@ -38,8 +38,8 @@ def extract_hits(event):
 
         # Determine hit source.
         key = None
-        if event[c.IRBANK][c.S_PID][hi] == "-13": key = c.S_MUONHITS   # Hit is from a muon.
-        elif event[c.IRBANK][c.S_PID][hi] == '0': key = c.S_PHOTONHITS # Hit is from a photon.
+        if event[c.IRBANK][c.S_PID][hi] in [c.S_MMPID, c.S_MPPID, c.S_NPID]: key = c.S_MASSHITS
+        elif event[c.IRBANK][c.S_PID][hi] == c.S_PHOTONPID:                  key = c.S_PHOTONHITS
 
         # Process photon hits
         if key == c.S_PHOTONHITS:
@@ -47,13 +47,14 @@ def extract_hits(event):
             if volid == c.SENSOR1A_ID or volid == c.SENSOR1B_ID: key = c.S_PHOTONH1
             if volid == c.SENSOR2A_ID or volid == c.SENSOR2B_ID: key = c.S_PHOTONH2
 
-        if key is None or key == c.S_PHOTONHITS: continue # Ignore uninteresting hits.
+        if key in [None, c.S_PHOTONHITS]: continue # Ignore uninteresting hits.
 
         # Add hit to dictionary, converting data to appropiate units.
-        hits[key][c.S_N].append(int  (event[c.IDBANK][c.S_HITN][hi]))       # hit identifier.
-        hits[key][c.S_X].append(float(event[c.IRBANK][c.S_AVGX][hi])/10.)   # x position (cm).
-        hits[key][c.S_Y].append(float(event[c.IRBANK][c.S_AVGY][hi])/10.)   # y position (cm).
-        hits[key][c.S_T].append(float(event[c.IRBANK][c.S_AVGT][hi]))       # Time (ns).
-        hits[key][c.S_E].append(float(event[c.IRBANK][c.S_EDEP][hi])) # Energy deposited (MeV).
+        hits[key][c.S_N]  .append(int  (event[c.IDBANK][c.S_HITN][hi]))     # hit identifier.
+        hits[key][c.S_PID].append(int  (event[c.IRBANK][c.S_PID] [hi]))     # particle identifier.
+        hits[key][c.S_X]  .append(float(event[c.IRBANK][c.S_AVGX][hi])/10.) # x position (cm).
+        hits[key][c.S_Y]  .append(float(event[c.IRBANK][c.S_AVGY][hi])/10.) # y position (cm).
+        hits[key][c.S_T]  .append(float(event[c.IRBANK][c.S_AVGT][hi]))     # Time (ns).
+        hits[key][c.S_E]  .append(float(event[c.IRBANK][c.S_EDEP][hi]))     # Energy deposited (MeV).
 
     return hits
