@@ -49,11 +49,14 @@ S_VOL       = "id"
 S_HITN      = "hitn"
 S_AVGX      = "avg_x"
 S_AVGY      = "avg_y"
+S_AVGZ      = "avg_z"
 S_AVGT      = "avg_t"
 S_EDEP      = "totEdep"
 S_PHOTONPID = "0"
 S_MMPID     = "-13"
 S_MPPID     = "13"
+S_EMPID     = "11"
+S_EPPID     = "-11"
 S_NPID      = "2112"
 
 # Strings defined and used by this program.
@@ -77,6 +80,7 @@ S_GRUIDH2  = S_GRUIDHITS  + " - " + S_SIDE2
 S_N  = 'n'
 S_X  = 'x'
 S_Y  = 'y'
+S_Z  = 'z'
 S_T  = 't'
 S_E  = 'E'
 S_DT = "dt"
