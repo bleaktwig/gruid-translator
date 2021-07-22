@@ -14,17 +14,18 @@ It can also export these matrices as .json files for easy loading.
 
 ## Usage
 Just clone and run `run.sh` with Python 3.9+ or above.
-The program requires four parameters to run, and has additional optional parameters:
+The program requires five parameters to run, and has additional optional parameters:
 
 ```
-usage: main.py [-h] [-f FEVENT] [-n NEVENTS] [-o OUTTYPE] [-r NROWS] [-c NCOLS] filename dt dx dy
+usage: main.py [-h] [-f FEVENT] [-n NEVENTS] [-o OUTTYPE] [-r NROWS] [-c NCOLS] filename dt dx dy dz
 
 positional arguments:
   filename              path of the gemc file to be processed.
   dt                    length of each time step for the generated time series in ns.
   dx                    length of each row for each of the time series' matrices in cm.
   dy                    length of each column for each of the time series' matrices in cm.
-
+  dz                    length of each depth column for each of the detector's body time series'
+                        matrices in cm.
 optional arguments:
   -h, --help            show this help message and exit
 
@@ -64,13 +65,19 @@ The filename is included in case the user wants to merge various generated `.jso
 The amount of second keys vary depending on the `OUTTYPE` set to generate them.
 Each of these and their following keys are listed here:
 * **gruid metadata**: metadata for the time series generated, added to simplify the user's life.
-Contains the `dt`, `dx`, `dy`, and the number of rows and columns in the generated matrices for that
+Contains the `dt`, `dx`, `dy`, `dz`, and the number of rows and columns in the generated matrices for that
 event.
 * **gruid hits - side n**: hits in the "standard gruid format" for one detector side (**n** can be 1
 or 2).
 The following keys are the instants of time for the time series.
 Following these, the keys are in a format (`x,y`), representing the position in the generated
 matrix, and their value is the deposited energy **in MeV**.
+* **gruid hits - body**: hits in the "standard gruid format" for the body of the detector.
+To store information about the detector's depth, is a 3-dimensional matrix.
+The following keys are the instants of time for the time series.
+Following these, the keys are in a format (`x,y,z`), representing the position in the generated
+matrix, and their value is a list of hits which includes the PID of the particle involved and its
+deposited energy.
 * **muon hits**: Contains all the muon hits registered in the event.
 `n` is the hit number (as defined by gemc), `t` the time in ns, `x` and `y` the position in cm, and
 `E` the energy deposited in MeV.
