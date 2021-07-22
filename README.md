@@ -86,6 +86,7 @@ Only present for debugging purposes.
 Follows the same standard as the muon hits.
 * **gemc metadata**: All the metadata contained in the input GEMC file.
 Could be useful to replicate the conditions in the original simulation.
+The PID in this metadata is the PID of the incoming particle.
 
 ## Contributing
 Pull requests are welcome, but please open an issue first if you would like to make a large change.

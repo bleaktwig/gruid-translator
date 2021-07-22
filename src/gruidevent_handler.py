@@ -24,11 +24,15 @@ def _gen_ts(process_z, hits, deltax, deltay, deltaz, dt, dx, dy, dz):
                       size of the generated matrices.
     :param deltay:    how much the entire detector is shifted from the y axis. Used to obtain the
                       size of the generated matrices.
+    :param deltaz:    how much the entire detector is shifted from the z axis. Used to obtain the
+                      size of the generated matrices.
     :param dt:        delta t for the time series.
     :param dx:        size of the matrices' columns. Doesn't need to divide the total x size of the
                       detector.
     :param dy:        size of the matrices' rows. Doesn't need to divide the total y size of the
                       detector.
+    :param dz:        size of the matrices' depth columns. Doesn't need to divide the total z size
+                      of the detector.
     :return:          a dictionary of 2-dimensional sparse matrices. Each matrix is defined as a
                       dictionary where a key is a tuple describing position and a value is the
                       energy deposited in eV. To further reduce storage use, if not hits are found
@@ -99,10 +103,11 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz):
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
     """
-    out_nrows = math.ceil(2*c.DY(in_nrows)/dy)
-    out_ncols = math.ceil(2*c.DX(in_ncols)/dx)
-    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0], c.S_DT:dt, \
-             c.S_DX:dx, c.S_DY:dy, c.S_DZ:dz, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols}}
+    out_ncols  = math.ceil(2*c.DX(in_ncols)/dx)
+    out_nrows  = math.ceil(2*c.DY(in_nrows)/dy)
+    out_ndcols = math.ceil(2*c.DZ/dz)
+    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0], c.S_DT:dt, c.S_DX:dx, \
+             c.S_DY:dy, c.S_DZ:dz, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols, c.S_NDCOLS:out_ndcols}}
     for s in ((c.S_GRUIDH1,c.S_PHOTONH1), (c.S_GRUIDH2,c.S_PHOTONH2), (c.S_GRUIDHB,c.S_MASSHITS)):
         event[s[0]] = _gen_ts(True if s[0]==c.S_GRUIDHB else False, hits[s[1]],
                               c.DX(in_ncols), c.DY(in_nrows), c.DZ, dt, dx, dy, dz)
