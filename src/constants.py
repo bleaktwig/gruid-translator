@@ -13,6 +13,7 @@ IHELP = "path of the gemc file to be processed."
 THELP = "length of each time step for the generated time series in ns."
 XHELP = "length of each row for each of the time series' matrices in cm."
 YHELP = "length of each column for each of the time series' matrices in cm."
+ZHELP = "length of each depth column for each of the detector's body time series' matrices in cm."
 FHELP = "event number of the first event in the gemc file that should be read. Note that " \
         "events are counted from 1 onward. Default is 1."
 NHELP = "number of events to read, counting from the file set with FEVENT. Set to 0 to read " \
@@ -73,10 +74,12 @@ S_NEUTRONHITS = "neutron hits"
 S_GRUIDHITS   = "gruid hits"
 S_SIDE1       = "side 1"
 S_SIDE2       = "side 2"
+S_BODY        = "body"
 S_PHOTONH1 = S_PHOTONHITS + " - " + S_SIDE1
 S_PHOTONH2 = S_PHOTONHITS + " - " + S_SIDE2
 S_GRUIDH1  = S_GRUIDHITS  + " - " + S_SIDE1
 S_GRUIDH2  = S_GRUIDHITS  + " - " + S_SIDE2
+S_GRUIDHB  = S_GRUIDHITS  + " - " + S_BODY
 S_N  = 'n'
 S_X  = 'x'
 S_Y  = 'y'
@@ -86,6 +89,7 @@ S_E  = 'E'
 S_DT = "dt"
 S_DX = "dx"
 S_DY = "dy"
+S_DZ = "dz"
 
 # IDs of the sensor endplates, as defined by the gemc simulation.
 SENSOR1A_ID =  4
@@ -96,6 +100,8 @@ SENSOR2B_ID = 15
 # Hardcoded measurements in the gemc simulation.
 STRIP_RADIUS = 0.050
 CORE_RADIUS  = 0.046
+# DELTAZ       = 1.99
+DELTAZ       = 2. # core.depth/2 + sensor.depth
 
 # Variables that depend on NROWS and NCOLS, variables that depend on the simulation conditions in
 # the input file.
