@@ -100,12 +100,11 @@ SENSOR2B_ID = 15
 # Hardcoded measurements in the gemc simulation.
 STRIP_RADIUS = 0.050
 CORE_RADIUS  = 0.046
-# DELTAZ       = 1.99
-DELTAZ       = 2. # core.depth/2 + sensor.depth
+DZ           = 2. # core.depth/2 + sensor.depth
 
 # Variables that depend on NROWS and NCOLS, variables that depend on the simulation conditions in
 # the input file.
 def NROWSA(NROWS): return (NROWS + 1)/2
 def NROWSB(NROWS): return (NROWS - 1)/2
-def DELTAX(NCOLS): return (2.*STRIP_RADIUS * NCOLS)/2.
-def DELTAY(NROWS): return (2.*STRIP_RADIUS + (STRIP_RADIUS * (1.732050808 + 1)) * (NROWS - 1))/2.
+def DX(NCOLS): return (2.*STRIP_RADIUS * NCOLS)/2.
+def DY(NROWS): return (2.*STRIP_RADIUS + (STRIP_RADIUS * (1.732050808 + 1)) * (NROWS - 1))/2.
