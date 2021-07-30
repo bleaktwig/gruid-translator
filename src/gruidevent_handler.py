@@ -61,9 +61,11 @@ def _gen_ts(process_z, hits, deltax, deltay, deltaz, dt, dx, dy, dz):
             sy = None
             for y in numpy.arange(-deltay, deltay+dy, dy):
                 if y <= chits[c.S_Y][hi] and chits[c.S_Y][hi] < y+dy: sy = y
-            sz = None
-            for z in numpy.arange(-deltaz, deltaz+dz, dz):
-                if z <= chits[c.S_Z][hi] and chits[c.S_Z][hi] < z+dz: sz = z
+            sz = 0
+            if not math.isnan(dz):
+                sz = None
+                for z in numpy.arange(-deltaz, deltaz+dz, dz):
+                    if z <= chits[c.S_Z][hi] and chits[c.S_Z][hi] < z+dz: sz = z
             if sx is None or sy is None or sz is None:
                 # NOTE: There is a very particular case where this conditional might be triggered
                 #       "by accident". If either dx or dy perfectly divides 2*deltax or 2*deltay
@@ -98,17 +100,26 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz):
     :param dt:    delta t for the time series in ns.
     :param dx:    size of the time series' matrix' columns in cm.
     :param dy:    size of the time series' matrix' rows in cm.
-    :param dz:    size of the detector's body time series' matrix' depth columns in cm.
+    :param dz:    size of the detector's body time series' matrix' depth columns in cm. If this is
+                  NaN, we don't capture depth data at all.
     :return:      an array of 2-dimensional sparse matrix as per scipy sparce's csr_matrix
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
     """
     out_ncols  = math.ceil(2*c.DX(in_ncols)/dx)
     out_nrows  = math.ceil(2*c.DY(in_nrows)/dy)
-    out_ndcols = math.ceil(2*c.DZ/dz)
-    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0], c.S_DT:dt, c.S_DX:dx, \
-             c.S_DY:dy, c.S_DZ:dz, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols, c.S_NDCOLS:out_ndcols}}
-    for s in ((c.S_GRUIDH1,c.S_PHOTONH1), (c.S_GRUIDH2,c.S_PHOTONH2), (c.S_GRUIDHB,c.S_MASSHITS)):
+    sarr       = [(c.S_GRUIDH1,c.S_PHOTONH1), (c.S_GRUIDH2,c.S_PHOTONH2)]
+    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0], \
+             c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols}}
+
+    # Add detector depth data if needed.
+    if not math.isnan(dz):
+        sarr.append((c.S_GRUIDHB,c.S_MASSHITS))
+        event[c.S_GRUIDMETA][c.S_DZ]     = dz
+        event[c.S_GRUIDMETA][c.S_NDCOLS] = math.ceil(2*c.DZ/dz)
+
+    # Run.
+    for s in sarr:
         event[s[0]] = _gen_ts(True if s[0]==c.S_GRUIDHB else False, hits[s[1]],
                               c.DX(in_ncols), c.DY(in_nrows), c.DZ, dt, dx, dy, dz)
     return event

@@ -27,7 +27,7 @@ def setup_parser():
     parser.add_argument("dt",              help=c.THELP, type=float)
     parser.add_argument("dx",              help=c.XHELP, type=float)
     parser.add_argument("dy",              help=c.YHELP, type=float)
-    parser.add_argument("dz",              help=c.ZHELP, type=float)
+    parser.add_argument("-z", "--dz",      help=c.ZHELP, type=float)
     parser.add_argument("-f", "--fevent",  help=c.FHELP, type=int)
     parser.add_argument("-n", "--nevents", help=c.NHELP, type=int)
     parser.add_argument("-o", "--outtype", help=c.OHELP, type=int)
@@ -49,7 +49,7 @@ def run(ifile, dt, dx, dy, dz, fevent, nevents, outtype, nrows, ncols):
         ei += 1
         ged[key] = gemc_eh.extract_hits(event)
         if len(ged[key][c.S_MASSHITS][c.S_N]) == 0 or \
-                (len(ged[key][c.S_PHOTONH1][c.S_N]) == 0 and len(ged[key][c.S_PHOTONH2][c.S_N]) == 0):
+                (len(ged[key][c.S_PHOTONH1][c.S_N])==0 and len(ged[key][c.S_PHOTONH2][c.S_N])==0):
             del ged[key]
             continue
         grd[key] = gruid_eh.generate_event(ged[key], nrows, ncols, dt, dx, dy, dz)
@@ -63,7 +63,8 @@ def main():
     dt = args.dt
     dx = args.dx
     dy = args.dy
-    dz = args.dz
+    dz = float("nan")
+    if args.dz: dz = args.dz
     fevent = 1
     if args.fevent: fevent = args.fevent
     nevents = 0

@@ -35,7 +35,8 @@ def get_path():
 def generate_outfilename(addr, f, n):
     """generate the output filename.
     """
-    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1])+"_"+str(f)+"-"+str(f+n-1)+".json"
+    return '_'.join('.'.join(addr.split('.')[0:-1]).split('_')[0:-1]) \
+                + "_" + str(f) + "-" + str(f+n-1) + ".json"
 
 def store_dict(dict, addr):
     """Store a dictionary as a json file to the given addr.
