@@ -28,6 +28,7 @@ def setup_parser():
     parser.add_argument("dx",              help=c.XHELP, type=float)
     parser.add_argument("dy",              help=c.YHELP, type=float)
     parser.add_argument("-z", "--dz",      help=c.ZHELP, type=float)
+    parser.add_argument("-d", "--dplane",  help=c.DHELP, type=float)
     parser.add_argument("-f", "--fevent",  help=c.FHELP, type=int)
     parser.add_argument("-n", "--nevents", help=c.NHELP, type=int)
     parser.add_argument("-o", "--outtype", help=c.OHELP, type=int)
@@ -36,13 +37,13 @@ def setup_parser():
     args = parser.parse_args()
     return args
 
-def run(ifile, dt, dx, dy, dz, fevent, nevents, outtype, nrows, ncols):
+def run(ifile, dt, dx, dy, dz, dpz, fevent, nevents, outtype, nrows, ncols):
     (path, filename) = io.split_address(ifile)
     if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename)
     (metadata, events) = io.load_file(ifile, fevent, nevents)
 
-    ei = fevent
-    ged  = {}
+    ei  = fevent
+    ged = {}
     grd = {}
     for event in events:
         key = filename + ' ' + c.S_EVENT + ' ' + str(ei)
@@ -52,7 +53,7 @@ def run(ifile, dt, dx, dy, dz, fevent, nevents, outtype, nrows, ncols):
                 (len(ged[key][c.S_PHOTONH1][c.S_N])==0 and len(ged[key][c.S_PHOTONH2][c.S_N])==0):
             del ged[key]
             continue
-        grd[key] = gruid_eh.generate_event(ged[key], nrows, ncols, dt, dx, dy, dz)
+        grd[key] = gruid_eh.generate_event(ged[key], nrows, ncols, dt, dx, dy, dz, dpz)
     io.generate_output(grd, ged, metadata, filename, fevent, nevents, outtype)
 
 def main():
@@ -65,6 +66,8 @@ def main():
     dy = args.dy
     dz = float("nan")
     if args.dz: dz = args.dz
+    dpz = float("nan")
+    if args.dplane: dpz = args.dplane
     fevent = 1
     if args.fevent: fevent = args.fevent
     nevents = 0
@@ -80,7 +83,7 @@ def main():
     ncols = None
     if args.ncols: ncols = args.ncols
 
-    run(ifile, dt, dx, dy, dz, fevent, nevents, outtype, nrows, ncols)
+    run(ifile, dt, dx, dy, dz, dpz, fevent, nevents, outtype, nrows, ncols)
 
 if __name__ == "__main__":
     main()

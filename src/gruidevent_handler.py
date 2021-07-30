@@ -11,6 +11,7 @@ import copy
 import math
 import numpy # NOTE: We could do without numpy...
 import sys
+from operator import itemgetter
 
 import constants as c
 
@@ -91,7 +92,46 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
         if hitstored: tseries[t] = phits
     return tseries
 
-def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz):
+def _gen_pd(hits, z):
+    """
+    Generate list of massive particles passing through a vertical plane whose position is given by
+    <z>.
+    :param hits: list of hits in the output format of the extract_hits() method.
+    :param z:    z position of the detecting plane.
+    """
+    if not hits: return None
+    chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original dictionary.
+
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+
+    # Separate hits by TID.
+    nhits = {}
+    for hi in range(len(chits[c.S_N])-1, -1, -1):
+        if chits[c.S_TID][hi] not in nhits.keys():
+            nhits[chits[c.S_TID][hi]] = []
+        nhits[chits[c.S_TID][hi]].append({c.S_X: chits[c.S_X][hi],
+                                          c.S_Y: chits[c.S_Y][hi],
+                                          c.S_Z: chits[c.S_Z][hi],
+                                          c.S_T: chits[c.S_T][hi],
+                                          c.S_E: chits[c.S_E][hi]})
+
+    # Order hits by time
+    nhits2 = {}
+    for k in nhits.keys():
+        nhits2[k] = sorted(nhits[k], key=itemgetter(c.S_T))
+
+    # Select tracks crossing through the plane.
+    for k in nhits2.keys():
+        for i in range(len(nhits2[k]) - 1):
+            if (nhits2[k][i][c.S_Z] < z and z < nhits2[k][i+1][c.S_Z]) or \
+               (nhits2[k][i][c.S_Z] > z and z > nhits2[k][i+1][c.S_Z]):
+                print("Found one passing between %f and %f!" % \
+                        (nhits2[k][i][c.S_Z], nhits2[k][i+1][c.S_Z]))
+
+    return 0
+
+def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, dpz):
     """
     Generates an event in a standard gruid .json format, as is described in the attached README.md.
     :param hits:  list of hits in the output format of the extract_hits() method.
@@ -102,6 +142,7 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz):
     :param dy:    size of the time series' matrix' rows in cm.
     :param dz:    size of the detector's body time series' matrix' depth columns in cm. If this is
                   NaN, we don't capture depth data at all.
+    :param dpz:   z position of the detecting plane.
     :return:      an array of 2-dimensional sparse matrix as per scipy sparce's csr_matrix
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
@@ -118,8 +159,12 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz):
         event[c.S_GRUIDMETA][c.S_DZ]     = dz
         event[c.S_GRUIDMETA][c.S_NDCOLS] = math.ceil(2*c.DZ/dz)
 
-    # Run.
+    # Obtain time series.
     for s in sarr:
         event[s[0]] = _gen_ts(hits[s[1]], c.DX(in_ncols), c.DY(in_nrows), c.DZ, \
                               dt, dx, dy, dz if s[0]==c.S_GRUIDHB else float("nan"))
+
+    # Obtain z plane data.
+    if not math.isnan(dpz):
+        event[c.S_DPLANE] = _gen_pd(hits[c.S_MASSHITS], dpz)
     return event
