@@ -14,11 +14,9 @@ import sys
 
 import constants as c
 
-def _gen_ts(process_z, hits, deltax, deltay, deltaz, dt, dx, dy, dz):
+def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
     """
     Generates a time series of sparse 2-dimensional or 3-dimensional matrices from a list of hits.
-    :param process_z: boolean to choose if the matrix is 2-dimensional (False) or 3-dimensional
-                      (True).
     :param hits:      list of hits in the output format of the extract_hits() method.
     :param deltax:    how much the entire detector is shifted from the x axis. Used to obtain the
                       size of the generated matrices.
@@ -32,7 +30,7 @@ def _gen_ts(process_z, hits, deltax, deltay, deltaz, dt, dx, dy, dz):
     :param dy:        size of the matrices' rows. Doesn't need to divide the total y size of the
                       detector.
     :param dz:        size of the matrices' depth columns. Doesn't need to divide the total z size
-                      of the detector.
+                      of the detector. If this is NaN, no depth processing is done.
     :return:          a dictionary of 2-dimensional sparse matrices. Each matrix is defined as a
                       dictionary where a key is a tuple describing position and a value is the
                       energy deposited in eV. To further reduce storage use, if not hits are found
@@ -77,13 +75,15 @@ def _gen_ts(process_z, hits, deltax, deltay, deltaz, dt, dx, dy, dz):
                 exit()
 
             ok = str(int((deltax+sx)/dx)) + ',' + str(int((deltay+sy)/dy))
-            if process_z:
+            if not math.isnan(dz):
                 ok += ',' + str(int((deltaz+sz)/dz))
                 if ok in phits: phits[ok].append((chits[c.S_PID][hi], chits[c.S_E][hi]))
                 else:           phits[ok] = [(chits[c.S_PID][hi], chits[c.S_E][hi])]
             else:
-                if ok in phits: phits[ok] += chits[c.S_E][hi]
-                else:           phits[ok]  = chits[c.S_E][hi]
+                if ok not in phits:
+                    phits[ok] = {c.S_GRUIDNHITS: 0, c.S_GRUIDEDEP: 0.}
+                phits[ok][c.S_GRUIDNHITS] += 1
+                phits[ok][c.S_GRUIDEDEP]  += chits[c.S_E][hi]
 
             for ikey in chits.keys(): chits[ikey].pop(hi)
             hitstored = True
@@ -120,6 +120,6 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz):
 
     # Run.
     for s in sarr:
-        event[s[0]] = _gen_ts(True if s[0]==c.S_GRUIDHB else False, hits[s[1]],
-                              c.DX(in_ncols), c.DY(in_nrows), c.DZ, dt, dx, dy, dz)
+        event[s[0]] = _gen_ts(hits[s[1]], c.DX(in_ncols), c.DY(in_nrows), c.DZ, \
+                              dt, dx, dy, dz if s[0]==c.S_GRUIDHB else float("nan"))
     return event
