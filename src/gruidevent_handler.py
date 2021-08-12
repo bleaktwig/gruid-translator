@@ -78,13 +78,13 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
             ok = str(int((deltax+sx)/dx)) + ',' + str(int((deltay+sy)/dy))
             if not math.isnan(dz):
                 ok += ',' + str(int((deltaz+sz)/dz))
-                if ok in phits: phits[ok].append((chits[c.S_PID][hi], chits[c.S_E][hi]))
-                else:           phits[ok] = [(chits[c.S_PID][hi], chits[c.S_E][hi])]
+                if ok in phits: phits[ok].append((chits[c.S_PID][hi], chits[c.S_ED][hi]))
+                else:           phits[ok] = [(chits[c.S_PID][hi], chits[c.S_ED][hi])]
             else:
                 if ok not in phits:
                     phits[ok] = {c.S_GRUIDNHITS: 0, c.S_GRUIDEDEP: 0.}
                 phits[ok][c.S_GRUIDNHITS] += 1
-                phits[ok][c.S_GRUIDEDEP]  += chits[c.S_E][hi]
+                phits[ok][c.S_GRUIDEDEP]  += chits[c.S_ED][hi]
 
             for ikey in chits.keys(): chits[ikey].pop(hi)
             hitstored = True
@@ -110,11 +110,10 @@ def _gen_pd(hits, z):
     for hi in range(len(chits[c.S_N])-1, -1, -1):
         if chits[c.S_TID][hi] not in nhits.keys():
             nhits[chits[c.S_TID][hi]] = []
-        nhits[chits[c.S_TID][hi]].append({c.S_X: chits[c.S_X][hi],
-                                          c.S_Y: chits[c.S_Y][hi],
-                                          c.S_Z: chits[c.S_Z][hi],
-                                          c.S_T: chits[c.S_T][hi],
-                                          c.S_E: chits[c.S_E][hi]})
+        nhits[chits[c.S_TID][hi]].append({
+                c.S_X: chits[c.S_X][hi], c.S_Y:  chits[c.S_Y][hi],  c.S_Z:    chits[c.S_Z][hi],
+                c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi]
+        })
 
     # Order hits by time
     nhits2 = {}
@@ -122,14 +121,15 @@ def _gen_pd(hits, z):
         nhits2[k] = sorted(nhits[k], key=itemgetter(c.S_T))
 
     # Select tracks crossing through the plane.
+    strks = {c.S_TID:[], c.S_TRKE:[]}
     for k in nhits2.keys():
         for i in range(len(nhits2[k]) - 1):
             if (nhits2[k][i][c.S_Z] < z and z < nhits2[k][i+1][c.S_Z]) or \
                (nhits2[k][i][c.S_Z] > z and z > nhits2[k][i+1][c.S_Z]):
-                print("Found one passing between %f and %f!" % \
-                        (nhits2[k][i][c.S_Z], nhits2[k][i+1][c.S_Z]))
+                strks[c.S_TID].append(k)
+                strks[c.S_TRKE].append(nhits[k][i][c.S_TRKE])
 
-    return 0
+    return strks
 
 def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, dpz):
     """
