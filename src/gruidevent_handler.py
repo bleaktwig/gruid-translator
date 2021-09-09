@@ -92,6 +92,10 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
         if hitstored: tseries[t] = phits
     return tseries
 
+# TODO. Add photons to virtual plane.
+# TODO. Separate entries in virtual plane by dt.
+# TODO. Add PID.
+
 def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
     """
     Generate list of massive particles passing through a vertical plane whose position is given by
@@ -114,7 +118,8 @@ def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
             nhits[chits[c.S_TID][hi]] = []
         nhits[chits[c.S_TID][hi]].append({
                 c.S_X: chits[c.S_X][hi], c.S_Y:  chits[c.S_Y][hi],  c.S_Z:    chits[c.S_Z][hi],
-                c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi]
+                c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi],
+                c.S_PID: chits[c.S_PID][hi]
         })
 
     # Order hits by time
@@ -133,7 +138,7 @@ def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
         nz /= n
 
     # Select tracks crossing through the plane.
-    strks = {c.S_TID:[], c.S_TRKE:[], c.S_T:[]}
+    strks = {c.S_TID:[], c.S_TRKE:[], c.S_T:[], c.S_PID:[]}
     for k in nhits2.keys():
         for i in range(len(nhits2[k]) - 1):
             h0    = nhits2[k][i]
@@ -142,17 +147,19 @@ def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
             alpha = nx*(h1[c.S_X]-h0[c.S_X]) + ny*(h1[c.S_Y]-h0[c.S_Y]) + nz*(h1[c.S_Z]-h0[c.S_Z])
             if -0.001 < alpha and alpha < 0.001:
                 if -0.001 < pdis and pdis < 0.001:
-                    strks[c.S_TID].append(k)
-                    strks[c.S_TRKE].append(h0[c.S_TRKE])
-                    strks[c.S_T].append(h0[c.S_T])
+                    add_trk(strks, k, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
             else:
                 rho = pdis/alpha
                 if 0 <= rho and rho <= 1:
-                    strks[c.S_TID].append(k)
-                    strks[c.S_TRKE].append(h0[c.S_TRKE])
-                    strks[c.S_T].append((1-rho)*h0[c.S_T] + rho*h1[c.S_T])
+                    add_trk(strks, k, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
 
     return strks
+
+def add_trk(trklist, id, E, t, pid):
+    trklist[c.S_TID] .append(id)
+    trklist[c.S_TRKE].append(E)
+    trklist[c.S_T]   .append(t)
+    trklist[c.S_PID] .append(pid)
 
 def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx, pny, pnz):
     """
