@@ -101,38 +101,58 @@ def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
     :param vy:   y position for the vertex of the detecting plane.
     :param vz:   z position for the vertex of the detecting plane.
     :param nx:   x direction for the vector of the detecting plane.
-    :param nx:   y direction for the vector of the detecting plane.
-    :param nx:   z direction for the vector of the detecting plane.
+    :param ny:   y direction for the vector of the detecting plane.
+    :param nz:   z direction for the vector of the detecting plane.
     """
     if not hits: return None
     chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original dictionary.
 
-    # # Separate hits by TID.
-    # nhits = {}
-    # for hi in range(len(chits[c.S_N])-1, -1, -1):
-    #     if chits[c.S_TID][hi] not in nhits.keys():
-    #         nhits[chits[c.S_TID][hi]] = []
-    #     nhits[chits[c.S_TID][hi]].append({
-    #             c.S_X: chits[c.S_X][hi], c.S_Y:  chits[c.S_Y][hi],  c.S_Z:    chits[c.S_Z][hi],
-    #             c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi]
-    #     })
-    #
-    # # Order hits by time
-    # nhits2 = {}
-    # for k in nhits.keys():
-    #     nhits2[k] = sorted(nhits[k], key=itemgetter(c.S_T))
-    #
-    # # Select tracks crossing through the plane.
-    # # TODO: Store the time in which the particle intersects the plane.
-    # strks = {c.S_TID:[], c.S_TRKE:[]}
-    # for k in nhits2.keys():
-    #     for i in range(len(nhits2[k]) - 1):
-    #         if (nhits2[k][i][c.S_Z] < z and z < nhits2[k][i+1][c.S_Z]) or \
-    #            (nhits2[k][i][c.S_Z] > z and z > nhits2[k][i+1][c.S_Z]):
-    #             strks[c.S_TID].append(k)
-    #             strks[c.S_TRKE].append(nhits[k][i][c.S_TRKE])
-    #
-    # return strks
+    # Separate hits by TID.
+    nhits = {}
+    for hi in range(len(chits[c.S_N])-1, -1, -1):
+        if chits[c.S_TID][hi] not in nhits.keys():
+            nhits[chits[c.S_TID][hi]] = []
+        nhits[chits[c.S_TID][hi]].append({
+                c.S_X: chits[c.S_X][hi], c.S_Y:  chits[c.S_Y][hi],  c.S_Z:    chits[c.S_Z][hi],
+                c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi]
+        })
+
+    # Order hits by time
+    nhits2 = {}
+    for k in nhits.keys():
+        nhits2[k] = sorted(nhits[k], key=itemgetter(c.S_T))
+
+    # Normalize the detecting plane's vector direction just in case.
+    n = nx**2 + ny**2 + nz**2
+    if n == 0:
+        print("ERROR: normal vector is 0! Exiting...", file=sys.stderr)
+        exit()
+    if 0.99 > n or n > 1.01:
+        nx /= n
+        ny /= n
+        nz /= n
+
+    # Select tracks crossing through the plane.
+    strks = {c.S_TID:[], c.S_TRKE:[]}
+    for k in nhits2.keys():
+        for i in range(len(nhits2[k]) - 1):
+            h0    = nhits2[k][i]
+            h1    = nhits2[k][i+1]
+            pdis    = nx*(vx-h0[c.S_X]) + ny*(vy-h0[c.S_Y]) + nz*(vz-h0[c.S_Z])
+            alpha = nx*(h1[c.S_X]-h0[c.S_X]) + ny*(h1[c.S_Y]-h0[c.S_Y]) + nz*(h1[c.S_Z]-h0[c.S_Z])
+            if -0.001 < alpha and alpha < 0.001:
+                if -0.001 < pdis and pdis < 0.001:
+                    strksp[c.S_TID].append(k)
+                    strks[c.S_TRKE].append(h0[c.S_TRKE])
+                    # TODO. Store time.
+            else:
+                rho = pdis/alpha
+                if 0 <= rho and rho <= 1:
+                    strks[c.S_TID].append(k)
+                    strks[c.S_TRKE].append(h0[c.S_TRKE])
+                    # TODO. Store time.
+
+    return strks
 
 def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx, pny, pnz):
     """

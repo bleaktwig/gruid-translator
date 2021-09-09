@@ -75,12 +75,12 @@ def main():
     if args.dz: dz = args.dz
 
     # Detecting plane.
-    if ((args.pvx or args.pvy or args.pvz or args.pnx or args.pny or args.pnz) and
-            ((not args.pvx) or (not args.pvy) or (not args.pvz) or (not args.pnx) or (not args.pny)
-            or (not args.pnz))):
-        print("ERROR: If one detecting plane variable is specified all should be! Exiting...",
-                file=sys.stderr)
-        exit()
+    plane_arr = [args.pvx, args.pvy, args.pvz, args.pnx, args.pny, args.pnz]
+    if not all(arg is None for arg in plane_arr):
+        if None in plane_arr:
+            print("ERROR: If one detecting plane variable is specified all should be! Exiting...",
+                    file=sys.stderr)
+            exit()
 
     pvx = float("nan")
     pvy = float("nan")
@@ -88,12 +88,12 @@ def main():
     pnx = float("nan")
     pny = float("nan")
     pnz = float("nan")
-    if args.pvx: pvx = args.pvx
-    if args.pvy: pvy = args.pvy
-    if args.pvz: pvz = args.pvz
-    if args.pnx: pnx = args.pnx
-    if args.pny: pny = args.pny
-    if args.pnz: pnz = args.pnz
+    if args.pvx is not None: pvx = args.pvx
+    if args.pvy is not None: pvy = args.pvy
+    if args.pvz is not None: pvz = args.pvz
+    if args.pnx is not None: pnx = args.pnx
+    if args.pny is not None: pny = args.pny
+    if args.pnz is not None: pnz = args.pnz
 
     fevent = 1
     if args.fevent: fevent = args.fevent
