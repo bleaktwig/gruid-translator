@@ -92,46 +92,49 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
         if hitstored: tseries[t] = phits
     return tseries
 
-def _gen_pd(hits, z):
+def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
     """
     Generate list of massive particles passing through a vertical plane whose position is given by
     <z>.
     :param hits: list of hits in the output format of the extract_hits() method.
-    :param z:    z position of the detecting plane.
+    :param vx:   x position for the vertex of the detecting plane.
+    :param vy:   y position for the vertex of the detecting plane.
+    :param vz:   z position for the vertex of the detecting plane.
+    :param nx:   x direction for the vector of the detecting plane.
+    :param nx:   y direction for the vector of the detecting plane.
+    :param nx:   z direction for the vector of the detecting plane.
     """
     if not hits: return None
     chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original dictionary.
 
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
+    # # Separate hits by TID.
+    # nhits = {}
+    # for hi in range(len(chits[c.S_N])-1, -1, -1):
+    #     if chits[c.S_TID][hi] not in nhits.keys():
+    #         nhits[chits[c.S_TID][hi]] = []
+    #     nhits[chits[c.S_TID][hi]].append({
+    #             c.S_X: chits[c.S_X][hi], c.S_Y:  chits[c.S_Y][hi],  c.S_Z:    chits[c.S_Z][hi],
+    #             c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi]
+    #     })
+    #
+    # # Order hits by time
+    # nhits2 = {}
+    # for k in nhits.keys():
+    #     nhits2[k] = sorted(nhits[k], key=itemgetter(c.S_T))
+    #
+    # # Select tracks crossing through the plane.
+    # # TODO: Store the time in which the particle intersects the plane.
+    # strks = {c.S_TID:[], c.S_TRKE:[]}
+    # for k in nhits2.keys():
+    #     for i in range(len(nhits2[k]) - 1):
+    #         if (nhits2[k][i][c.S_Z] < z and z < nhits2[k][i+1][c.S_Z]) or \
+    #            (nhits2[k][i][c.S_Z] > z and z > nhits2[k][i+1][c.S_Z]):
+    #             strks[c.S_TID].append(k)
+    #             strks[c.S_TRKE].append(nhits[k][i][c.S_TRKE])
+    #
+    # return strks
 
-    # Separate hits by TID.
-    nhits = {}
-    for hi in range(len(chits[c.S_N])-1, -1, -1):
-        if chits[c.S_TID][hi] not in nhits.keys():
-            nhits[chits[c.S_TID][hi]] = []
-        nhits[chits[c.S_TID][hi]].append({
-                c.S_X: chits[c.S_X][hi], c.S_Y:  chits[c.S_Y][hi],  c.S_Z:    chits[c.S_Z][hi],
-                c.S_T: chits[c.S_T][hi], c.S_ED: chits[c.S_ED][hi], c.S_TRKE: chits[c.S_TRKE][hi]
-        })
-
-    # Order hits by time
-    nhits2 = {}
-    for k in nhits.keys():
-        nhits2[k] = sorted(nhits[k], key=itemgetter(c.S_T))
-
-    # Select tracks crossing through the plane.
-    strks = {c.S_TID:[], c.S_TRKE:[]}
-    for k in nhits2.keys():
-        for i in range(len(nhits2[k]) - 1):
-            if (nhits2[k][i][c.S_Z] < z and z < nhits2[k][i+1][c.S_Z]) or \
-               (nhits2[k][i][c.S_Z] > z and z > nhits2[k][i+1][c.S_Z]):
-                strks[c.S_TID].append(k)
-                strks[c.S_TRKE].append(nhits[k][i][c.S_TRKE])
-
-    return strks
-
-def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, dpz):
+def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx, pny, pnz):
     """
     Generates an event in a standard gruid .json format, as is described in the attached README.md.
     :param hits:  list of hits in the output format of the extract_hits() method.
@@ -142,7 +145,12 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, dpz):
     :param dy:    size of the time series' matrix' rows in cm.
     :param dz:    size of the detector's body time series' matrix' depth columns in cm. If this is
                   NaN, we don't capture depth data at all.
-    :param dpz:   z position of the detecting plane.
+    :param pvx:   x position for the vertex of the detecting plane.
+    :param pvy:   y position for the vertex of the detecting plane.
+    :param pvz:   z position for the vertex of the detecting plane.
+    :param pnx:   x direction for the vector of the detecting plane.
+    :param pny:   y direction for the vector of the detecting plane.
+    :param pnz:   z direction for the vector of the detecting plane.
     :return:      an array of 2-dimensional sparse matrix as per scipy sparce's csr_matrix
                   definition. To further reduce storage use, if not hits are found for a dt, a
                   NoneType object is stored instead of an empty matrix.
@@ -164,7 +172,7 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, dpz):
         event[s[0]] = _gen_ts(hits[s[1]], c.DX(in_ncols), c.DY(in_nrows), c.DZ, \
                               dt, dx, dy, dz if s[0]==c.S_GRUIDHB else float("nan"))
 
-    # Obtain z plane data.
-    if not math.isnan(dpz):
-        event[c.S_DPLANE] = _gen_pd(hits[c.S_MASSHITS], dpz)
+    # Obtain detecting plane data if needed.
+    if not math.isnan(pvx):
+        event[c.S_DPLANE] = _gen_pd(hits[c.S_MASSHITS], pvx, pvy, pvz, pnx, pny, pnz)
     return event

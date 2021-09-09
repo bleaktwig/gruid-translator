@@ -28,7 +28,12 @@ def setup_parser():
     parser.add_argument("dx",              help=c.XHELP, type=float)
     parser.add_argument("dy",              help=c.YHELP, type=float)
     parser.add_argument("-z", "--dz",      help=c.ZHELP, type=float)
-    parser.add_argument("-d", "--dplane",  help=c.DHELP, type=float)
+    parser.add_argument("--pvx",           help=c.PVXHELP, type=float)
+    parser.add_argument("--pvy",           help=c.PVYHELP, type=float)
+    parser.add_argument("--pvz",           help=c.PVZHELP, type=float)
+    parser.add_argument("--pnx",           help=c.PNXHELP, type=float)
+    parser.add_argument("--pny",           help=c.PNYHELP, type=float)
+    parser.add_argument("--pnz",           help=c.PNZHELP, type=float)
     parser.add_argument("-f", "--fevent",  help=c.FHELP, type=int)
     parser.add_argument("-n", "--nevents", help=c.NHELP, type=int)
     parser.add_argument("-o", "--outtype", help=c.OHELP, type=int)
@@ -37,7 +42,7 @@ def setup_parser():
     args = parser.parse_args()
     return args
 
-def run(ifile, dt, dx, dy, dz, dpz, fevent, nevents, outtype, nrows, ncols):
+def run(ifile, dt, dx, dy, dz, pvx, pvy, pvz, pnx, pny, pnz, fevent, nevents, outtype, nrows, ncols):
     (path, filename) = io.split_address(ifile)
     if nrows is None and ncols is None: (nrows, ncols) = io.decode_filename(filename)
     (metadata, events) = io.load_file(ifile, fevent, nevents)
@@ -53,7 +58,8 @@ def run(ifile, dt, dx, dy, dz, dpz, fevent, nevents, outtype, nrows, ncols):
                 (len(ged[key][c.S_PHOTONH1][c.S_N])==0 and len(ged[key][c.S_PHOTONH2][c.S_N])==0):
             del ged[key]
             continue
-        grd[key] = gruid_eh.generate_event(ged[key], nrows, ncols, dt, dx, dy, dz, dpz)
+        grd[key] = gruid_eh.generate_event(ged[key], nrows, ncols, dt, dx, dy, dz,
+                                           pvx, pvy, pvz, pnx, pny, pnz)
     io.generate_output(grd, ged, metadata, filename, fevent, nevents, outtype)
 
 def main():
@@ -61,13 +67,34 @@ def main():
 
     # Process arguments.
     ifile = args.filename
+    # Time series args.
     dt = args.dt
     dx = args.dx
     dy = args.dy
     dz = float("nan")
     if args.dz: dz = args.dz
-    dpz = float("nan")
-    if args.dplane: dpz = args.dplane
+
+    # Detecting plane.
+    if ((args.pvx or args.pvy or args.pvz or args.pnx or args.pny or args.pnz) and
+            ((not args.pvx) or (not args.pvy) or (not args.pvz) or (not args.pnx) or (not args.pny)
+            or (not args.pnz))):
+        print("ERROR: If one detecting plane variable is specified all should be! Exiting...",
+                file=sys.stderr)
+        exit()
+
+    pvx = float("nan")
+    pvy = float("nan")
+    pvz = float("nan")
+    pnx = float("nan")
+    pny = float("nan")
+    pnz = float("nan")
+    if args.pvx: pvx = args.pvx
+    if args.pvy: pvy = args.pvy
+    if args.pvz: pvz = args.pvz
+    if args.pnx: pnx = args.pnx
+    if args.pny: pny = args.pny
+    if args.pnz: pnz = args.pnz
+
     fevent = 1
     if args.fevent: fevent = args.fevent
     nevents = 0
@@ -83,7 +110,7 @@ def main():
     ncols = None
     if args.ncols: ncols = args.ncols
 
-    run(ifile, dt, dx, dy, dz, dpz, fevent, nevents, outtype, nrows, ncols)
+    run(ifile, dt, dx, dy, dz, pvx, pvy, pvz, pnx, pny, pnz, fevent, nevents, outtype, nrows, ncols)
 
 if __name__ == "__main__":
     main()

@@ -9,23 +9,27 @@ GEMC, with some additional stuff to help standardize the program.
 """
 
 # Usage strings.
-IHELP = "path of the gemc file to be processed."
-THELP = "length of each time step for the generated time series in ns."
-XHELP = "length of each row for each of the time series' matrices in cm."
-YHELP = "length of each column for each of the time series' matrices in cm."
-ZHELP = "length of each depth column for each of the detector's body time series' matrices in cm."
-DHELP = "z position of the detecting plane inside the detector's body. Tracks passing through " \
-        "this plane are identified and added to the output file."
-FHELP = "event number of the first event in the gemc file that should be read. Note that " \
-        "events are counted from 1 onward. Default is 1."
-NHELP = "number of events to read, counting from the file set with FEVENT. Set to 0 to read " \
-        "until the end of file. Default is 0."
-OHELP = "type of output to be generated. Can be any integer from 1 to 5. Check the README for a " \
-        "detailed description of each alternative. Default is 2."
-RHELP = "number of rows set in the gemc simulation. By default this is read from the " \
-        "filename, but this argument can be set to override this behaviour."
-CHELP = "number of columns set in the gemc simulation. By default this is read from the " \
-        "filename, but this argument can be set to override this behaviour."
+IHELP   = "path of the gemc file to be processed."
+THELP   = "length of each time step for the generated time series in ns."
+XHELP   = "length of each row for each of the time series' matrices in cm."
+YHELP   = "length of each column for each of the time series' matrices in cm."
+ZHELP   = "length of each depth column for each of the detector's body time series' matrices in cm."
+PVXHELP = "x position of the vertex for the detecting plane inside the detector's body."
+PVYHELP = "y position of the vertex for the detecting plane inside the detector's body."
+PVZHELP = "z position of the vertex for the detecting plane inside the detector's body."
+PNXHELP = "x direction of the normal vector to the detecting plane inside the detector's body."
+PNYHELP = "y direction of the normal vector to the detecting plane inside the detector's body."
+PNZHELP = "z direction of the normal vector to the detecting plane inside the detector's body."
+FHELP   = "event number of the first event in the gemc file that should be read. Note that "\
+          "events are counted from 1 onward. Default is 1."
+NHELP   = "number of events to read, counting from the file set with FEVENT. Set to 0 to read "\
+          "until the end of file. Default is 0."
+OHELP   = "type of output to be generated. Can be any integer from 1 to 5. Check the README for a "\
+          "detailed description of each alternative. Default is 2."
+RHELP   = "number of rows set in the gemc simulation. By default this is read from the "\
+          "filename, but this argument can be set to override this behaviour."
+CHELP   = "number of columns set in the gemc simulation. By default this is read from the "\
+          "filename, but this argument can be set to override this behaviour."
 
 # Paths, prefixes, etc.
 OUTPREF = "out_"
@@ -57,11 +61,11 @@ S_AVGZ      = "avg_z"
 S_AVGT      = "avg_t"
 S_EDEP      = "totEdep"
 S_TRACKE    = "trackE"
-S_PHOTONPID = "0"
-S_MMPID     = "-13"
-S_MPPID     = "13"
-S_EMPID     = "11"
-S_EPPID     = "-11"
+S_PHOTONPID =    "0"
+S_MMPID     =  "-13"
+S_MPPID     =   "13"
+S_EMPID     =   "11"
+S_EPPID     =  "-11"
 S_NPID      = "2112"
 
 # Strings defined and used by this program.
