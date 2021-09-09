@@ -17,27 +17,42 @@ Just clone and run `run.sh` with Python 3.9+ or above.
 The program requires five parameters to run, and has additional optional parameters:
 
 ```
-usage: main.py [-h] [-f FEVENT] [-n NEVENTS] [-o OUTTYPE] [-r NROWS] [-c NCOLS] filename dt dx dy dz
+usage: main.py [-h] [-z DZ] [--pvx PVX] [--pvy PVY] [--pvz PVZ] [--pnx PNX] [--pny PNY] [--pnz PNZ]
+               [-f FEVENT] [-n NEVENTS] [-o OUTTYPE] [-r NROWS] [-c NCOLS]
+               filename dt dx dy
 
 positional arguments:
   filename              path of the gemc file to be processed.
   dt                    length of each time step for the generated time series in ns.
   dx                    length of each row for each of the time series' matrices in cm.
   dy                    length of each column for each of the time series' matrices in cm.
-  dz                    length of each depth column for each of the detector's body time series'
-                        matrices in cm.
+
 optional arguments:
   -h, --help            show this help message and exit
-
-  -f, --fevent FEVENT   event number of the first event in the gemc file that should be read. Note
+  -z DZ, --dz DZ        length of each depth column for each of the detector's body time series' matrices in cm.
+  --pvx PVX             x position of the vertex for the detecting plane inside the detector's body.
+  --pvy PVY             y position of the vertex for the detecting plane inside the detector's body.
+  --pvz PVZ             z position of the vertex for the detecting plane inside the detector's body.
+  --pnx PNX             x direction of the normal vector to the detecting plane inside the
+                        detector's body.
+  --pny PNY             y direction of the normal vector to the detecting plane inside the
+                        detector's body.
+  --pnz PNZ             z direction of the normal vector to the detecting plane inside the
+                        detector's body.
+  -f FEVENT, --fevent FEVENT
+                        event number of the first event in the gemc file that should be read. Note
                         that events are counted from 1 onward. Default is 1.
-  -n, --nevents NEVENTS number of events to read, counting from the file set with FEVENT. Set to 0
+  -n NEVENTS, --nevents NEVENTS
+                        number of events to read, counting from the file set with FEVENT. Set to 0
                         to read until the end of file. Default is 0.
-  -o, --outtype OUTTYPE type of output to be generated. Can be any integer from 1 to 5. Default is
-                        2.
-  -r, --nrows NROWS     number of rows set in the gemc simulation. By default this is read from the
+  -o OUTTYPE, --outtype OUTTYPE
+                        type of output to be generated. Can be any integer from 1 to 5. Check the
+                        README for a detailed description of each alternative. Default is 2.
+  -r NROWS, --nrows NROWS
+                        number of rows set in the gemc simulation. By default this is read from the
                         filename, but this argument can be set to override this behaviour.
-  -c, --ncols NCOLS     number of columns set in the gemc simulation. By default this is read from
+  -c NCOLS, --ncols NCOLS
+                        number of columns set in the gemc simulation. By default this is read from
                         the filename, but this argument can be set to override this behaviour.
 ```
 
@@ -46,7 +61,7 @@ optional arguments:
 This option can generate a truckload of output, so use with caution!
 * `2`: A `.json` file containing the time series is stored in `out/`.
 This is the default option.
-* `3`: The muon hits are added to the exported file.
+* `3`: The massive particle hits are added to the exported file.
 These are the targets for reconstruction.
 * `4`: The photon hits used to generate the time series are added to the exported file.
 This can aid in debugging.
@@ -65,8 +80,8 @@ The filename is included in case the user wants to merge various generated `.jso
 The amount of second keys vary depending on the `OUTTYPE` set to generate them.
 Each of these and their following keys are listed here:
 * **gruid metadata**: metadata for the time series generated, added to simplify the user's life.
-Contains the `dt`, `dx`, `dy`, `dz`, and the number of rows and columns in the generated matrices for that
-event.
+Contains the `dt`, `dx`, `dy`, `dz`, and the number of rows and columns in the generated matrices
+for that event.
 * **gruid hits - side n**: hits in the "standard gruid format" for one detector side (**n** can be 1
 or 2).
 The following keys are the instants of time for the time series.
