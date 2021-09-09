@@ -92,9 +92,7 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
         if hitstored: tseries[t] = phits
     return tseries
 
-# TODO. Add photons to virtual plane.
 # TODO. Separate entries in virtual plane by dt.
-# TODO. Add PID.
 
 def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
     """
@@ -201,5 +199,9 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx,
 
     # Obtain detecting plane data if needed.
     if not math.isnan(pvx):
-        event[c.S_DPLANE] = _gen_pd(hits[c.S_MASSHITS], pvx, pvy, pvz, pnx, pny, pnz)
+        chits = {}
+        for key in hits[c.S_MASSHITS]:
+            chits[key] = hits[c.S_MASSHITS][key] + hits[c.S_PHOTONHITS][key]
+        event[c.S_DPLANE] = _gen_pd(chits,
+                                    pvx, pvy, pvz, pnx, pny, pnz)
     return event

@@ -32,9 +32,10 @@ def extract_hits(event):
     hitdict = {c.S_N:[], c.S_ID:[], c.S_PID:[], c.S_X:[], c.S_Y:[], c.S_Z:[], c.S_T:[],
                c.S_ED:[], c.S_TRKE:[]}
     pidlist = [c.S_MMPID, c.S_MPPID, c.S_EMPID, c.S_EPPID, c.S_NPID]
-    hits = {c.S_MASSHITS: copy.deepcopy(hitdict),
-            c.S_PHOTONH1: copy.deepcopy(hitdict),
-            c.S_PHOTONH2: copy.deepcopy(hitdict),}
+    hits = {c.S_MASSHITS:   copy.deepcopy(hitdict),
+            c.S_PHOTONHITS: copy.deepcopy(hitdict),
+            c.S_PHOTONH1:   copy.deepcopy(hitdict),
+            c.S_PHOTONH2:   copy.deepcopy(hitdict),}
 
     for hi in range(len(event[c.IDBANK][c.S_HITN])):
         if event[c.IRBANK][c.S_EDEP][hi] == '0': continue # Ignore hits with no energy deposited.
@@ -50,7 +51,7 @@ def extract_hits(event):
             if volid == c.SENSOR1A_ID or volid == c.SENSOR1B_ID: key = c.S_PHOTONH1
             if volid == c.SENSOR2A_ID or volid == c.SENSOR2B_ID: key = c.S_PHOTONH2
 
-        if key in [None, c.S_PHOTONHITS]: continue # Ignore uninteresting hits.
+        if key is None: continue # Ignore uninteresting hits.
 
         # Add hit to dictionary, converting data to appropiate units.
         hits[key][c.S_N]   .append(int  (event[c.IDBANK][c.S_HITN]  [hi]))     # hit id.
