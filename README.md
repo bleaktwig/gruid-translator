@@ -14,7 +14,8 @@ It can also export these matrices as .json files for easy loading.
 
 ## Usage
 Just clone and run `run.sh` with Python 3.9+ or above.
-The program requires five parameters to run, and has additional optional parameters:
+The program requires four positional arguments to run, with more parameters available as optional
+arguments.
 
 ```
 usage: main.py [-h] [-z DZ] [--pvx PVX] [--pvy PVY] [--pvz PVZ] [--pnx PNX] [--pny PNY] [--pnz PNZ]
