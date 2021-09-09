@@ -94,7 +94,7 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
 
 # TODO. Separate entries in virtual plane by dt.
 
-def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
+def _gen_pd(hits, dt, vx, vy, vz, nx, ny, nz):
     """
     Generate list of massive particles passing through a vertical plane whose position is given by
     <z>.
@@ -108,6 +108,11 @@ def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
     """
     if not hits: return None
     chits = copy.deepcopy(hits) # Deep copy hits to avoid damaging original dictionary.
+
+    tseries = {}
+    max_t = 0.
+    for t in chits[c.S_T]:
+        if t > max_t: max_t = t
 
     # Separate hits by TID.
     nhits = {}
@@ -136,22 +141,29 @@ def _gen_pd(hits, vx, vy, vz, nx, ny, nz):
         nz /= n
 
     # Select tracks crossing through the plane.
-    strks = {c.S_TID:[], c.S_TRKE:[], c.S_T:[], c.S_PID:[]}
-    for k in nhits2.keys():
-        for i in range(len(nhits2[k]) - 1):
-            h0    = nhits2[k][i]
-            h1    = nhits2[k][i+1]
-            pdis  = nx*(vx-h0[c.S_X]) + ny*(vy-h0[c.S_Y]) + nz*(vz-h0[c.S_Z])
-            alpha = nx*(h1[c.S_X]-h0[c.S_X]) + ny*(h1[c.S_Y]-h0[c.S_Y]) + nz*(h1[c.S_Z]-h0[c.S_Z])
-            if -0.001 < alpha and alpha < 0.001:
-                if -0.001 < pdis and pdis < 0.001:
-                    add_trk(strks, k, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
-            else:
-                rho = pdis/alpha
-                if 0 <= rho and rho <= 1:
-                    add_trk(strks, k, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
-
-    return strks
+    for t in numpy.arange(0., max_t, dt):
+        hitstored = False
+        strks = {c.S_TID:[], c.S_TRKE:[], c.S_T:[], c.S_PID:[]}
+        for k in nhits2.keys():
+            for i in range(len(nhits2[k]) - 1):
+                h0    = nhits2[k][i]
+                h1    = nhits2[k][i+1]
+                pdis  = nx*(vx-h0[c.S_X]) + ny*(vy-h0[c.S_Y]) + nz*(vz-h0[c.S_Z])
+                alpha = nx*(h1[c.S_X]-h0[c.S_X]) + ny*(h1[c.S_Y]-h0[c.S_Y]) + nz*(h1[c.S_Z]-h0[c.S_Z])
+                if -0.001 < alpha and alpha < 0.001:
+                    if -0.001 < pdis and pdis < 0.001:
+                        if t > h0[c.S_T] or h0[c.S_T] > t+dt: continue
+                        add_trk(strks, k, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
+                        hitstored = True
+                else:
+                    rho = pdis/alpha
+                    if 0 <= rho and rho <= 1:
+                        tt = (1-rho)*h0[c.S_T] + rho*h1[c.S_T]
+                        if t > tt or tt > t+dt: continue
+                        add_trk(strks, k, h0[c.S_TRKE], tt, h0[c.S_PID])
+                        hitstored = True
+        if hitstored: tseries[t] = strks
+    return tseries
 
 def add_trk(trklist, id, E, t, pid):
     trklist[c.S_TID] .append(id)
@@ -170,7 +182,8 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx,
     :param dy:    size of the time series' matrix' rows in cm.
     :param dz:    size of the detector's body time series' matrix' depth columns in cm. If this is
                   NaN, we don't capture depth data at all.
-    :param pvx:   x position for the vertex of the detecting plane.
+    :param pvx:   x position for the vertex of the detecting plane. If this is NaN, the virtual
+                  plane isn't used.
     :param pvy:   y position for the vertex of the detecting plane.
     :param pvz:   z position for the vertex of the detecting plane.
     :param pnx:   x direction for the vector of the detecting plane.
@@ -183,7 +196,7 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx,
     out_ncols  = math.ceil(2*c.DX(in_ncols)/dx)
     out_nrows  = math.ceil(2*c.DY(in_nrows)/dy)
     sarr       = [(c.S_GRUIDH1,c.S_PHOTONH1), (c.S_GRUIDH2,c.S_PHOTONH2)]
-    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0], \
+    event = {c.S_GRUIDMETA: {c.S_PID:hits[c.S_MASSHITS][c.S_PID][0],
              c.S_DT:dt, c.S_DX:dx, c.S_DY:dy, c.S_NROWS:out_nrows, c.S_NCOLS:out_ncols}}
 
     # Add detector depth data if needed.
@@ -194,7 +207,7 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx,
 
     # Obtain time series.
     for s in sarr:
-        event[s[0]] = _gen_ts(hits[s[1]], c.DX(in_ncols), c.DY(in_nrows), c.DZ, \
+        event[s[0]] = _gen_ts(hits[s[1]], c.DX(in_ncols), c.DY(in_nrows), c.DZ,
                               dt, dx, dy, dz if s[0]==c.S_GRUIDHB else float("nan"))
 
     # Obtain detecting plane data if needed.
@@ -202,6 +215,5 @@ def generate_event(hits, in_nrows, in_ncols, dt, dx, dy, dz, pvx, pvy, pvz, pnx,
         chits = {}
         for key in hits[c.S_MASSHITS]:
             chits[key] = hits[c.S_MASSHITS][key] + hits[c.S_PHOTONHITS][key]
-        event[c.S_DPLANE] = _gen_pd(chits,
-                                    pvx, pvy, pvz, pnx, pny, pnz)
+        event[c.S_DPLANE] = _gen_pd(chits, dt, pvx, pvy, pvz, pnx, pny, pnz)
     return event
