@@ -151,13 +151,13 @@ def _gen_pd(hits, dt, vx, vy, vz, nx, ny, nz):
 
             if -0.001 < alpha and alpha < 0.001 and -0.001 < pdis and pdis < 0.001:
                 # Line lies on plane
-                _add_trk(tseries, max_t, dt, k, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
+                _add_trk(tseries, max_t, dt, trkid, h0[c.S_TRKE], h0[c.S_T], h0[c.S_PID])
             else:
                 # Line intersects plane.
                 rho = abs(pdis/alpha)
                 if 0 <= rho and rho <= 1:
-                    _add_trk(tseries, max_t, dt, k, h0[c.S_TRKE], (1-rho)*h0[c.S_T] + rho*h1[c.S_T],
-                             h0[c.S_PID])
+                    _add_trk(tseries, max_t, dt, trkid, h0[c.S_TRKE],
+                             (1-rho)*h0[c.S_T] + rho*h1[c.S_T], h0[c.S_PID])
 
     # Remove empty entries from time series.
     for t in numpy.arange(0., max_t, dt):
