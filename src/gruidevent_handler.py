@@ -94,8 +94,7 @@ def _gen_ts(hits, deltax, deltay, deltaz, dt, dx, dy, dz):
 
 def _gen_pd(hits, dt, vx, vy, vz, nx, ny, nz):
     """
-    Generate list of massive particles passing through a vertical plane whose position is given by
-    <z>.
+    Generate list of massive particles passing through a plane.
     :param hits: list of hits in the output format of the extract_hits() method.
     :param vx:   x position for the vertex of the detecting plane.
     :param vy:   y position for the vertex of the detecting plane.
